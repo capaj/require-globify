@@ -1,0 +1,34 @@
+{
+  "name": "require-globify",
+  "version": "0.1.0",
+  "description": "transform for browserify, which allows to require files with globbing expressions",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodeunit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/capaj/require-globify.git"
+  },
+  "keywords": [
+    "browserify",
+    "browserify-transform",
+    "angular",
+    "require",
+    "glob"
+  ],
+  "author": "Jiří špác <capajj@gmail.com> (https://coderwall.com/capaj)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/capaj/require-globify/issues"
+  },
+  "homepage": "https://github.com/capaj/require-globify",
+  "dependencies": {
+    "glob": "~4.0",
+    "through2": "^0.6.1"
+  },
+  "devDependencies": {
+    "browserify": "~5.12",
+	  "mocha": "^1.21.4"
+  }
+}

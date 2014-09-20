@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptLibraryMappings">
+    <file url="file://$PROJECT_DIR$/index.js" libraries="{Node.js Globals, Node.js v0.10.31 Core Modules}" />
+    <file url="file://$PROJECT_DIR$/spec/basic.spec.js" libraries="{Node.js v0.10.31 Core Modules}" />
+    <file url="PROJECT" libraries="{browserify-DefinitelyTyped, mocha-DefinitelyTyped, nodeunit-DefinitelyTyped}" />
+  </component>
+</project>
+
