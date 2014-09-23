@@ -16,7 +16,7 @@ module.exports = function (file, opts) {
 	function flush (cb) {
 		var relativeToFile = path.dirname(file);
 
-		var globRequires = data.match(/requireGlob\(("|')([^;]+)("|')\s*\);/g);
+		var globRequires = data.match(/requireGlob\(("|')([^(\(|\))]+)("|')\s*\)/g);
 		if (Array.isArray(globRequires)) {
 			globRequires.forEach(function (expr){
 				var globExpr = expr.match(/("|')([^"]+)("|')\s*/g)[0];
