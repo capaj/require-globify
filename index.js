@@ -16,7 +16,7 @@ module.exports = function (file, opts) {
 	function flush (cb) {
 		var relativeToFile = path.dirname(file);
 
-		var globRequires = data.match(/requireGlob\(("|')([^(\(|\))]+)("|')\s*\)/g);
+		var globRequires = data.match(/requireGlob\(["'](.+)["']\)/gm);
 		if (Array.isArray(globRequires)) {
 			globRequires.forEach(function (expr){
 				var globExpr = expr.match(/("|')([^"]+)("|')\s*/g)[0];
@@ -27,7 +27,7 @@ module.exports = function (file, opts) {
 					console.warn("Glob expression " + globExpr + " failed to find any files");
 				}
 				files.forEach(function (file){
-					requires += 'require("' + file + '");\r\n';
+					requires += 'require("' + file + '");';
 				});
 				data = data.replace(expr, requires);
 			});

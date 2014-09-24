@@ -17,6 +17,9 @@ describe('basic glob replacement', function() {
 			if (!(data.indexOf('test token1') !== -1 && data.indexOf('test token1') !== -1)) {
 				err = new Error('expected the bundle to include both test tokens');
 			}
+			if (!(data.indexOf('test token3') === -1 && data.indexOf('test token4') === -1)) {
+				err = new Error('expected the bundle to NOT include commented out files');
+			}
 
 			cb();
 			done(err);
