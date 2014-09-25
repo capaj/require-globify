@@ -1,10 +1,10 @@
 var fs = require('fs');
 var browserify = require('browserify');
 var through = require('through2');
+var globRequireTransform = require('./../index');
 
 describe('basic glob replacement', function() {
 	it('should have both test tokens when bundled', function(done) {
-		var globRequireTransform = require('./../index');
 
 		var data = '';
 		browserify({
@@ -26,6 +26,23 @@ describe('basic glob replacement', function() {
 		}));
 	});
 
+	it('should not include itself when glob expression includes itself', function(done) {
+		var data = '';
+		browserify({
+			entries: require.resolve('./basic/self-exclusion/module.js')
+		}).transform(globRequireTransform).bundle().pipe(through(function(buf, enc, cb) {
+			data += buf;
+			cb();
+		}, function(cb) {
+			var err;
+			if (data.indexOf('module.js') !== -1) {
+				err = new Error('expected this require call to be skipped');
+			}
+
+			cb();
+			done(err);
+		}));
+	});
 
 });
 
