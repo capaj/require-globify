@@ -2,6 +2,7 @@ var fs = require('fs');
 var browserify = require('browserify');
 var through = require('through2');
 var globRequireTransform = require('./../index');
+var transformTools = require('browserify-transform-tools');
 
 describe('basic glob replacement', function() {
 	it('should have both test tokens when bundled', function(done) {
@@ -37,6 +38,26 @@ describe('basic glob replacement', function() {
 			var err;
 			if (data.indexOf('module.js') !== -1) {
 				err = new Error('expected this require call to be skipped');
+			}
+
+			cb();
+			done(err);
+		}));
+	});
+	
+	it('should include the extensions of files if the configuration is set so', function(done) {
+		var data = '';
+		browserify({
+			entries: require.resolve('./hash/include-exts/module.js')
+		}).transform(globRequireTransform).bundle().pipe(through(function(buf, enc, cb) {
+			data += buf;
+			cb();
+		}, function(cb) {
+			var err;
+			if (data.indexOf('"1.js":') === -1) {
+				err = new Error('expected extension to be included');
+			} else if (data.indexOf('"2.js":') === -1) {
+				err = new Error('expected extension to be included');
 			}
 
 			cb();

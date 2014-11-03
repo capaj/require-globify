@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "browserify": "^6.2.0",
-    "mocha": "^2.0.1"
+    "mocha": "^2.0.1",
+    "through2": "^0.6.3"
   }
 }

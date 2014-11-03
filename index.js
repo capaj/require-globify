@@ -22,9 +22,9 @@ module.exports = transformTools.makeRequireTransform('require-globify', {
         }
         if ((typeof args[1].hash !== "undefined" && args[1].hash !== null && args[1].hash !== false)) {
           for (var mi = 0, mil = modules.length; mi < mil; mi++) {
-            modules[mi] = '"' + (args[1].ext ? modules[mi] : path.basename(modules[mi], path.extname(modules[mi]))) + '": require(\'' + modules[mi] + '\')';
+            modules[mi] = '"' + (args[1].ext ? path.basename(modules[mi]) : path.basename(modules[mi], path.extname(modules[mi]))) + '": require(\'' + modules[mi] + '\')';
           }
-          replacement = '{' + modules.join(',') + '}';
+          replacement = '{' + modules.join(', ') + '}';
         } else {
           replacement = 'require(\'' + modules.join('\');\nrequire(\'') + '\')';
         }
