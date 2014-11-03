@@ -1,10 +1,22 @@
 require-globify
 ===============
 
-[![Build Status](https://travis-ci.org/call-a3/require-globify.svg?branch=develop)](https://travis-ci.org/call-a3/require-globify)
+[![Build Status](https://travis-ci.org/call-a3/require-globify.svg?branch=master)](https://travis-ci.org/call-a3/require-globify)
 [![Dependency Status](https://david-dm.org/call-a3/require-globify.svg)](https://david-dm.org/call-a3/require-globify) [![devDependency Status](https://david-dm.org/call-a3/require-globify/dev-status.svg)](https://david-dm.org/call-a3/require-globify#info=devDependencies)
 
-transform for browserify, which allows to require files with globbing expressions.
+Transform for browserify, which allows to require files with globbing expressions.
+
+## Installation
+
+[![require-globify](https://nodei.co/npm/require-globify.png?mini=true)](https://nodei.co/npm/require-globify)
+
+## Usage
+
+``` bash
+browserify -t require-globify entry.js > bundle.js
+```
+
+## Example
 
 You can add an extra parameter to the classic require() like this:
 
@@ -28,3 +40,9 @@ var hashWithExtensions = {"abc.js": require('./scripts/abc.js'),"def.js": requir
 ```
 
 Transform will generate classic require() calls before browserify is run.
+
+## Credits
+Original concept from Jiří špác, completely reimplemented by Adriaan Callaerts.
+
+## License
+[MIT](http://github.com/call-a3/require-globify/blob/master/LICENSE)

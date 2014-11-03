@@ -32,7 +32,7 @@
   "homepage": "https://github.com/capaj/require-globify",
   "dependencies": {
     "browserify-transform-tools": "^1.2.1",
-    "glob": "^4.0.6"
+    "glob": "~4.0"
   },
   "devDependencies": {
     "browserify": "^6.2.0",
