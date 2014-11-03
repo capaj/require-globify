@@ -1,1 +1,1 @@
-requireGlob('./*');
+require('./*', {glob:true}); // should not be added recursively
