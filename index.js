@@ -7,7 +7,8 @@ module.exports = transformTools.makeRequireTransform('require-globify', {
     evaluateArguments: true
   },
   function (args, opts, done) {
-    if (typeof args[1] !== 'undefined' && (args[1].hash || args[1].glob)) {
+    var optsObj = args[1];
+    if (typeof  optsObj !== 'undefined' && (optsObj.hash || optsObj.glob)) {
       var cwd = path.dirname(opts.file),
         globPattern = args[0],
         files = glob.sync(globPattern, {
@@ -15,14 +16,17 @@ module.exports = transformTools.makeRequireTransform('require-globify', {
         });
       if (files.length !== 0 && files.length > 0) {
         var modules = [];
+        var replacement;
         for (var fi = 0, fl = files.length; fi < fl; fi++) {
           if (path.resolve(cwd, files[fi]) !== opts.file) {
             modules.push(files[fi]);
           }
         }
-        if ((typeof args[1].hash !== "undefined" && args[1].hash !== null && args[1].hash !== false)) {
+        if ((typeof optsObj.hash !== "undefined" && optsObj.hash !== null && optsObj.hash !== false)) {
           for (var mi = 0, mil = modules.length; mi < mil; mi++) {
-            modules[mi] = '"' + (args[1].ext ? path.basename(modules[mi]) : path.basename(modules[mi], path.extname(modules[mi]))) + '": require(\'' + modules[mi] + '\')';
+            var module = modules[mi];
+            var hashProp = optsObj.ext ? path.basename(module) : path.basename(module, path.extname(module));
+            modules[mi] = '"' + hashProp + '": require(\'' + module + '\')';
           }
           replacement = '{' + modules.join(', ') + '}';
         } else {
@@ -35,4 +39,5 @@ module.exports = transformTools.makeRequireTransform('require-globify', {
     } else {
       done();
     }
-  });
+  }
+);
