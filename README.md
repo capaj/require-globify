@@ -1,8 +1,8 @@
 require-globify
 ===============
 
-[![Build Status](https://travis-ci.org/call-a3/require-globify.svg?branch=master)](https://travis-ci.org/call-a3/require-globify)
-[![Dependency Status](https://david-dm.org/call-a3/require-globify.svg)](https://david-dm.org/call-a3/require-globify) [![devDependency Status](https://david-dm.org/call-a3/require-globify/dev-status.svg)](https://david-dm.org/call-a3/require-globify#info=devDependencies)
+[![Build Status](https://travis-ci.org/capaj/require-globify.svg?branch=master)](https://travis-ci.org/capaj/require-globify)
+[![Dependency Status](https://david-dm.org/capaj/require-globify.svg)](https://david-dm.org/capaj/require-globify) [![devDependency Status](https://david-dm.org/capaj/require-globify/dev-status.svg)](https://david-dm.org/capaj/require-globify#info=devDependencies)
 
 Transform for browserify, which allows to require files with globbing expressions.
 
@@ -45,4 +45,4 @@ Transform will generate classic require() calls before browserify is run.
 Original concept from Jiří špác, completely reimplemented by Adriaan Callaerts.
 
 ## License
-[MIT](http://github.com/call-a3/require-globify/blob/master/LICENSE)
+[MIT](http://github.com/capaj/require-globify/blob/master/LICENSE)
