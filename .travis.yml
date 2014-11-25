@@ -1,3 +1,11 @@
 language: node_js
 node_js:
-  - 0.10
+- 0.1
+deploy:
+  provider: npm
+  email: adriaan.callaerts@gmail.com
+  api_key:
+    secure: k1PBsgHyPT77moq3FBF75xGjIVYzGSLedRbHD6qW/6oBWHImBWHT+W92Qa1qN8kvz1GuCSk958UzAf9UpJWHPjheQ0V0u3kHBDL00WKXP+/TyJtGkIm2wMJbWzio6iHRnGXdO9M7TvYqM2fQjECj7BXLcA37z03n/YmVr6D951c=
+  on:
+    tags: true
+    repo: capaj/require-globify
