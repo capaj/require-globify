@@ -1,7 +1,7 @@
 require-globify
 ===============
 
-[![Build Status](https://travis-ci.org/capaj/require-globify.svg?tag=1.0.2)](https://travis-ci.org/capaj/require-globify)
+[![Build Status](https://travis-ci.org/capaj/require-globify.svg?branch=develop)](https://travis-ci.org/capaj/require-globify)
 [![Dependency Status](https://david-dm.org/capaj/require-globify.svg)](https://david-dm.org/capaj/require-globify) [![devDependency Status](https://david-dm.org/capaj/require-globify/dev-status.svg)](https://david-dm.org/capaj/require-globify#info=devDependencies)
 
 Transform for browserify, which allows to require files with globbing expressions.
