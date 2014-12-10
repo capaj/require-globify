@@ -24,13 +24,14 @@ module.exports = transformTools.makeRequireTransform('require-globify', {
         }
         if ((typeof optsObj.hash !== "undefined" && optsObj.hash !== null && optsObj.hash !== false)) {
           for (var mi = 0, mil = modules.length; mi < mil; mi++) {
-            var module = modules[mi];
-            var hashProp = optsObj.ext ? path.basename(module) : path.basename(module, path.extname(module));
-            modules[mi] = '"' + hashProp + '": require(\'' + module + '\')';
+            var mod = modules[mi];
+            var hashKey = optsObj.ext ? path.basename(mod) : path.basename(mod, path.extname(mod));
+            var modulePath = path.dirname(mod) + '/' + hashKey;
+            modules[mi] = '"' + hashKey + '": require("' + modulePath + '")';
           }
           replacement = '{' + modules.join(', ') + '}';
         } else {
-          replacement = 'require(\'' + modules.join('\');\nrequire(\'') + '\')';
+          replacement = 'require("' + modules.join('");\nrequire("') + '")';
         }
         done(null, replacement);
       } else {
