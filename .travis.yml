@@ -1,11 +1,13 @@
 language: node_js
 node_js:
-- 0.1
+- '0.10'
+- '0.11'
 deploy:
   provider: npm
   email: adriaan.callaerts@gmail.com
   api_key:
-    secure: k1PBsgHyPT77moq3FBF75xGjIVYzGSLedRbHD6qW/6oBWHImBWHT+W92Qa1qN8kvz1GuCSk958UzAf9UpJWHPjheQ0V0u3kHBDL00WKXP+/TyJtGkIm2wMJbWzio6iHRnGXdO9M7TvYqM2fQjECj7BXLcA37z03n/YmVr6D951c=
+    secure: c2WJgOHckWhVCOxqhaRZ2Rtu3Z8ykoSRif1B1PiJ8HcpC0TmHTAwGjZiolMzt3zj4Cv2Qyp91w1EIKEo4e69EPsGX22RDWME6bh2nnXzDUIZ6XUi6ylb4iy4fao2Vlg83+SbmiIPg5PZJfnTcpqFw0BvK989vk920zFyk6ZTHWs=
   on:
     tags: true
     repo: capaj/require-globify
+    all_branches: true
