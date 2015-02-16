@@ -4,7 +4,7 @@ var through = require('through2');
 var globRequireTransform = require('./../index');
 var transformTools = require('browserify-transform-tools');
 
-describe('basic glob replacement', function() {
+describe('hash glob replacement', function() {
 	it('should have both test tokens when bundled', function(done) {
 
 		var data = '';
