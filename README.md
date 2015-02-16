@@ -26,6 +26,10 @@ require('./scripts/*.js', {glob: true});
 var hash = require('./scripts/*.js', {hash: true});
 
 var hashWithExtensions = require('./scripts/*.js', {hash: true, ext: true});
+
+var hashWithPaths = require('./**/*.js', {hash: 'path'});
+
+var hashWithExtensionsAndPaths = require('./**/*.js', {hash: 'path', ext: true});
 ```
 
 which is then transformed into the following if the folder './scripts/' contains the files 'abc.js' and 'def.js'
@@ -37,6 +41,10 @@ require('./scripts/def.js');
 var hash = {"abc": require('./scripts/abc.js'),"def": require('./scripts/def.js')};
 
 var hashWithExtensions = {"abc.js": require('./scripts/abc.js'),"def.js": require('./scripts/def.js')};
+
+var hashWithPaths = {"./scripts/abc": require('./scripts/abc.js'),"./scripts/def": require('./scripts/def.js')};
+
+var hashWithExtensionsAndPaths = {"./scripts/abc.js": require('./scripts/abc.js'),"./scripts/def.js": require('./scripts/def.js')};
 ```
 
 Transform will generate classic require() calls before browserify is run.
