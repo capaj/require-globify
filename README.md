@@ -8,7 +8,7 @@ Transform for browserify, which allows to require files with globbing expression
 
 ## Installation
 
-[![require-globify](https://nodei.co/npm/require-globify.png?mini=true)](https://nodei.co/npm/require-globify)
+[![require-globify](https://nodei.co/npm/require-globify.png?compact=true)](https://nodei.co/npm/require-globify)
 
 ## Usage
 
@@ -51,6 +51,13 @@ Transform will generate classic require() calls before browserify is run.
 
 ## Credits
 Original concept from Jiří špác, completely reimplemented by Adriaan Callaerts.
+Hashing with paths implemented by Pat Collins.
 
 ## License
 [MIT](http://github.com/capaj/require-globify/blob/master/LICENSE)
+
+## Changelog
+ - 1.1.0: Added hashing with path.
+ - 1.0.*: Bugfixes.
+ - 1.0.0: Rewrite based on browserify-transform-tools.
+ - 0.*  : Base implementation by Jiří špác.
