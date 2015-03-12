@@ -50,7 +50,7 @@ var hashWithExtensionsAndPaths = {"./scripts/abc.js": require('./scripts/abc.js'
 Transform will generate classic require() calls before browserify is run.
 
 ## Credits
-Original concept from Jiří špác, completely reimplemented by Adriaan Callaerts.
+Original concept from Jiří špác, completely reimplemented by Adriaan Callaerts([@call-a3](https://github.com/call-a3)).
 Hashing with paths implemented by Pat Collins.
 
 ## License
@@ -60,4 +60,4 @@ Hashing with paths implemented by Pat Collins.
  - 1.1.0: Added hashing with path.
  - 1.0.*: Bugfixes.
  - 1.0.0: Rewrite based on browserify-transform-tools.
- - 0.*  : Base implementation by Jiří špác.
+ - 0.*  : Base implementation by Jiří špác([@capaj](https://github.com/capaj)).
