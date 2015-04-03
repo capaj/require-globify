@@ -34,7 +34,8 @@ module.exports = transformTools.makeRequireTransform('require-globify', {
               modulePath = hashKey;
             } else if (optsObj.hash === true) {
               hashKey = optsObj.ext ? path.basename(mod) : path.basename(mod, path.extname(mod));
-              modulePath = path.dirname(mod) + '/' + hashKey;
+              hashKeyExt = path.basename(mod);
+              modulePath = path.dirname(mod) + '/' + hashKeyExt;
             }
             modules[mi] = '"' + hashKey + '": require("' + modulePath + '")';
           }
