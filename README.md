@@ -51,7 +51,7 @@ Transform will generate classic require() calls before browserify is run.
 
 ## Credits
 Original concept from Jiří špác, completely reimplemented by Adriaan Callaerts([@call-a3](https://github.com/call-a3)).
-Hashing with paths implemented by Pat Collins.
+Hashing with paths implemented by Pat Collins([@patcoll](https://github.com/patcoll)).
 
 ## License
 [MIT](http://github.com/capaj/require-globify/blob/master/LICENSE)
