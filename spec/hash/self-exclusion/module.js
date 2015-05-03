@@ -1,1 +1,0 @@
-var rec = require('./*', {hash: true}); // should not be added recursively
