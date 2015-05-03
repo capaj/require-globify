@@ -1,6 +1,6 @@
 {
   "name": "require-globify",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "transform for browserify, which allows to require files with globbing expressions",
   "main": "index.js",
   "scripts": {
@@ -39,8 +39,7 @@
     "glob": "^5.0.5"
   },
   "devDependencies": {
-    "browserify": "^10.0.0",
-    "mocha": "^2.2.4",
-    "through2": "^1.1.1"
+    "chai": "^2.3.0",
+    "mocha": "^2.2.4"
   }
 }

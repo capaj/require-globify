@@ -8,7 +8,7 @@ Transform for browserify, which allows to require files with globbing expression
 
 ## Installation
 
-[![require-globify](https://nodei.co/npm/require-globify.png?compact=true)](https://nodei.co/npm/require-globify)
+[![require-globify](https://nodei.co/npm/require-globify.png?small=true)](https://nodei.co/npm/require-globify)
 
 ## Usage
 
@@ -18,45 +18,53 @@ browserify -t require-globify entry.js > bundle.js
 
 ## Example
 
-You can add an extra parameter to the classic require() like this:
-
+The transform is triggered by adding an additional parameter to the classic require() call.
 ```javascript
-require('./scripts/*.js', {glob: true});
+// just expand to multiple require calls, one for each matched file
+require('./includes/*.js', {mode: 'expand'});
 
-var hash = require('./scripts/*.js', {hash: true});
-
-var hashWithExtensions = require('./scripts/*.js', {hash: true, ext: true});
-
-var hashWithPaths = require('./**/*.js', {hash: 'path'});
-
-var hashWithExtensionsAndPaths = require('./**/*.js', {hash: 'path', ext: true});
+// return an object that maps each matched path to it's require() call
+var hash = require('./includes/*.js', {mode: 'hash'});
 ```
 
-which is then transformed into the following if the folder './scripts/' contains the files 'abc.js' and 'def.js'
+## Interface
+The second parameter to require must be an object and supports the following keys:
 
-```javascript
-require('./scripts/abc.js');
-require('./scripts/def.js');
+### mode *[required]*
+  Possible values are
+  - `'expand'`: replaces the call with multiple calls, one for each match.
 
-var hash = {"abc": require('./scripts/abc.js'),"def": require('./scripts/def.js')};
+  This replaces the option `glob: true` in *<1.2.0*.
 
-var hashWithExtensions = {"abc.js": require('./scripts/abc.js'),"def.js": require('./scripts/def.js')};
+  - `'hash'`: replaces the call with an object.
 
-var hashWithPaths = {"./scripts/abc": require('./scripts/abc.js'),"./scripts/def": require('./scripts/def.js')};
+  Every matched file is represented by an identifier as the key and it's respective require call as the value. The identifiers can be tweaked with other options.
+  This replaces the option `hash: true` in *<1.2.0*.
 
-var hashWithExtensionsAndPaths = {"./scripts/abc.js": require('./scripts/abc.js'),"./scripts/def.js": require('./scripts/def.js')};
-```
+### ext *[optional, default:false]*
+  This option sets if the file extension should be included when determining the identifier of a file.
 
-Transform will generate classic require() calls before browserify is run.
+### options *[optional, default:{}]*
+  This allows options to be provided to [node-glob](https://www.npmjs.com/package/glob), which is used internally to find matching files.
+
+### glob *[deprecated]*
+  This option is replaced by `mode: 'expand'`, but remains supported until version 2.\*.\*
+
+### hash *[deprecated]*
+  This option is replaced by `mode: 'hash'`, but remains supported until version 2.\*.\*
+
 
 ## Credits
 Original concept from Jiří špác, completely reimplemented by Adriaan Callaerts.
 Hashing with paths implemented by Pat Collins.
 
+
 ## License
 [MIT](http://github.com/capaj/require-globify/blob/master/LICENSE)
 
+
 ## Changelog
+ - 1.2.0: Added mode feature, pass-through options for node-glob and multiple bugfixes
  - 1.1.0: Added hashing with path.
  - 1.0.*: Bugfixes.
  - 1.0.0: Rewrite based on browserify-transform-tools.
