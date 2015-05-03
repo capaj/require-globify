@@ -4,7 +4,7 @@ var test = (function() {
 	var path = require('path');
 	var runTransform = require('browserify-transform-tools').runTransform;
 
-	return function(location, content, checkData) {
+	return function(location, content, checkData, done) {
 		runTransform(
 			transform,
 			path.resolve(__dirname, location),
@@ -12,6 +12,7 @@ var test = (function() {
 			function(err, data) {
 				expect(err).to.be.null;
 				checkData(data);
+				done();
 			});
 	}
 })();
@@ -33,8 +34,7 @@ describe('require-globify', function() {
 				function(data) {
 					expect(data).to.not.contain('./include/INCLUDED.js');
 					expect(data).to.equal(singleLine);
-					done();
-				});
+				}, done);
 		});
 
 		it('should ignore require calls in multiline comments', function(done) {
@@ -50,8 +50,7 @@ describe('require-globify', function() {
 				function(data) {
 					expect(data).to.not.contain('./include/INCLUDED.js');
 					expect(data).to.equal(multiLine);
-					done();
-				});
+				}, done);
 		});
 	});
 
@@ -66,9 +65,19 @@ describe('require-globify', function() {
 					'require("./include/*", {mode: "expand"});',
 					function(data) {
 						expect(data).to.contain('./include/INCLUDED.js');
+						expect(data).to.contain('./include/INCLUDED2.js');
 						expect(data).to.not.contain('./include/nesting/NESTED_INCLUDE.js');
-						done();
-					});
+					}, done);
+			});
+
+			it('should pass on options to node-glob', function(done) {
+				test(
+					'./dummies/module.js',
+					'require("./include/*.js", {mode: "expand", options: {ignore: \'./include/*2.*\'}});',
+					function(data) {
+						expect(data).to.contain('./include/INCLUDED.js');
+						expect(data).to.not.contain('./include/INCLUDED2.js');
+					}, done);
 			});
 
 			it('should remove itself if it doesn\'t match anything', function(done) {
@@ -78,8 +87,7 @@ describe('require-globify', function() {
 					function(data) {
 						expect(data).to.not.contain('./module.js');
 						expect(data).to.not.match(/require\(\s?("")|('')\)/);
-						done();
-					});
+					}, done);
 			});
 
 			it('should not contain itself, even if it matches the glob', function(done) {
@@ -89,8 +97,7 @@ describe('require-globify', function() {
 					function(data) {
 						expect(data).to.not.contain('./module.js');
 						expect(data).to.contain('./INCLUDED.js');
-						done();
-					});
+					}, done);
 			});
 
 			it('should be able to match non-js files', function(done) {
@@ -100,8 +107,7 @@ describe('require-globify', function() {
 					function(data) {
 						expect(data).to.not.contain('./module.js');
 						expect(data).to.contain('./template/TEMPLATED.hbs');
-						done();
-					});
+					}, done);
 			});
 
 		});
@@ -116,20 +122,18 @@ describe('require-globify', function() {
 							expect(data).to.contain('./include/INCLUDED.js');
 							expect(data).to.contain('./include/nesting/NESTED_INCLUDE.js');
 							expect(data).to.contain('./ignore/IGNORED.js');
-							done();
-						});
+						}, done);
 				});
 
 				it('should pass on options to node-glob', function(done) {
 					test(
 						'./dummies/module.js',
-						'require("./**/*.js", {mode: "expand", options: {ignore: \'*/ignore/**/*\'}});',
+						'require("./**/*.js", {mode: "expand", options: {ignore: \'./ignore/**/*\'}});',
 						function(data) {
 							expect(data).to.contain('./include/INCLUDED.js');
 							expect(data).to.contain('./include/nesting/NESTED_INCLUDE.js');
 							expect(data).to.not.contain('./ignore/IGNORED.js');
-							done();
-						});
+						}, done);
 				});
 
 				it('should remove itself if it doesn\'t match anything', function(done) {
@@ -138,8 +142,7 @@ describe('require-globify', function() {
 						'require("./**/*.bogus", {mode: "expand"});',
 						function(data) {
 							expect(data).to.not.match(/require\(\s?("")|('')\)/);
-							done();
-						});
+						}, done);
 				});
 
 				it('should not contain itself, even if it matches the glob', function(done) {
@@ -149,8 +152,7 @@ describe('require-globify', function() {
 						function(data) {
 							expect(data).to.not.contain('./module.js');
 							expect(data).to.contain('./INCLUDED.js');
-							done();
-						});
+						}, done);
 				});
 
 				it('should be able to match non-js files', function(done) {
@@ -160,8 +162,7 @@ describe('require-globify', function() {
 						function(data) {
 							expect(data).to.not.contain('./module.js');
 							expect(data).to.contain('./template/TEMPLATED.hbs');
-							done();
-						});
+						}, done);
 				});
 
 		});
@@ -177,21 +178,19 @@ describe('require-globify', function() {
 								expect(data).to.contain('../include/nesting/NESTED_INCLUDE.js');
 								expect(data).to.contain('../ignore/IGNORED.js');
 								expect(data).to.not.contain('../template/TEMPLATED.hbs');
-								done();
-							});
+							}, done);
 					});
 
 					it('should pass on options to node-glob', function(done) {
 						test(
 							'./dummies/include/module.js',
-							'require("../**/*.js", {mode: "expand", options: {ignore: \'*/ignore/**/*\'}});',
+							'require("../**/*.js", {mode: "expand", options: {ignore: \'../ignore/**/*\'}});',
 							function(data) {
 								expect(data).to.contain('../include/INCLUDED.js');
 								expect(data).to.contain('../include/nesting/NESTED_INCLUDE.js');
 								expect(data).to.not.contain('../ignore/IGNORED.js');
 								expect(data).to.not.contain('../template/TEMPLATED.hbs');
-								done();
-							});
+							}, done);
 					});
 
 					it('should remove itself if it doesn\'t match anything', function(done) {
@@ -200,8 +199,7 @@ describe('require-globify', function() {
 							'require("../**/*.bogus", {mode: "expand"});',
 							function(data) {
 								expect(data).to.not.match(/require\(\s?("")|('')\)/);
-								done();
-							});
+							}, done);
 					});
 
 					it('should not contain itself, even if it matches the glob', function(done) {
@@ -211,8 +209,7 @@ describe('require-globify', function() {
 							function(data) {
 								expect(data).to.not.contain('./module.js');
 								expect(data).to.contain('../INCLUDED.js');
-								done();
-							});
+							}, done);
 					});
 
 					it('should be able to match non-js files', function(done) {
@@ -222,8 +219,7 @@ describe('require-globify', function() {
 							function(data) {
 								expect(data).to.not.contain('./module.js');
 								expect(data).to.contain('../template/TEMPLATED.hbs');
-								done();
-							});
+							}, done);
 					});
 
 		});
@@ -242,19 +238,17 @@ describe('require-globify', function() {
 					function(data) {
 						expect(data).to.contain('./include/INCLUDED.js');
 						expect(data).to.not.contain('./include/nesting/NESTED_INCLUDE.js');
-						done();
-					});
+					}, done);
 			});
 
-			it('should remove itself if it doesn\'t match anything', function(done) {
+			it('should return an empty object if it doesn\'t match anything', function(done) {
 				test(
 					'./dummies/module.js',
 					'var deps = require("./*", {mode: "hash"});',
 					function(data) {
 						expect(data).to.not.contain('./module.js');
 						expect(data).to.not.match(/require\(\s?("")|('')\)/);
-						done();
-					});
+					}, done);
 			});
 
 			it('should not contain itself, even if it matches the glob', function(done) {
@@ -264,8 +258,7 @@ describe('require-globify', function() {
 					function(data) {
 						expect(data).to.not.contain('./module.js');
 						expect(data).to.contain('./INCLUDED.js');
-						done();
-					});
+					}, done);
 			});
 
 			it('should be able to match non-js files', function(done) {
@@ -275,8 +268,7 @@ describe('require-globify', function() {
 					function(data) {
 						expect(data).to.not.contain('./module.js');
 						expect(data).to.contain('./template/TEMPLATED.hbs');
-						done();
-					});
+					}, done);
 			});
 
 		});
@@ -291,8 +283,7 @@ describe('require-globify', function() {
 							expect(data).to.contain('./include/INCLUDED.js');
 							expect(data).to.contain('./include/nesting/NESTED_INCLUDE.js');
 							expect(data).to.contain('./ignore/IGNORED.js');
-							done();
-						});
+						}, done);
 				});
 
 				it('should pass on options to node-glob', function(done) {
@@ -303,18 +294,16 @@ describe('require-globify', function() {
 							expect(data).to.contain('./include/INCLUDED.js');
 							expect(data).to.contain('./include/nesting/NESTED_INCLUDE.js');
 							expect(data).to.not.contain('./ignore/IGNORED.js');
-							done();
-						});
+						}, done);
 				});
 
-				it('should remove itself if it doesn\'t match anything', function(done) {
+				it('should return an empty object if it doesn\'t match anything', function(done) {
 					test(
 						'./dummies/module.js',
 						'var deps = require("./**/*.bogus", {mode: "hash"});',
 						function(data) {
 							expect(data).to.not.match(/require\(\s?("")|('')\)/);
-							done();
-						});
+						}, done);
 				});
 
 				it('should not contain itself, even if it matches the glob', function(done) {
@@ -324,8 +313,7 @@ describe('require-globify', function() {
 						function(data) {
 							expect(data).to.not.contain('./module.js');
 							expect(data).to.contain('./INCLUDED.js');
-							done();
-						});
+						}, done);
 				});
 
 				it('should be able to match non-js files', function(done) {
@@ -335,8 +323,7 @@ describe('require-globify', function() {
 						function(data) {
 							expect(data).to.not.contain('./module.js');
 							expect(data).to.contain('./template/TEMPLATED.hbs');
-							done();
-						});
+						}, done);
 				});
 
 		});
@@ -352,8 +339,7 @@ describe('require-globify', function() {
 								expect(data).to.contain('../include/nesting/NESTED_INCLUDE.js');
 								expect(data).to.contain('../ignore/IGNORED.js');
 								expect(data).to.not.contain('../template/TEMPLATED.hbs');
-								done();
-							});
+							}, done);
 					});
 
 					it('should pass on options to node-glob', function(done) {
@@ -365,19 +351,17 @@ describe('require-globify', function() {
 								expect(data).to.contain('../include/nesting/NESTED_INCLUDE.js');
 								expect(data).to.not.contain('../ignore/IGNORED.js');
 								expect(data).to.not.contain('../template/TEMPLATED.hbs');
-								done();
-							});
+							}, done);
 					});
 
-					it('should output null if it doesn\'t match anything', function(done) {
+					it('should return an empty object if it doesn\'t match anything', function(done) {
 						test(
 							'./dummies/include/module.js',
 							'var deps = require("../**/*.bogus", {mode: "hash"});',
 							function(data) {
 								expect(data).to.not.match(/require\(\s?("")|('')\)/);
 								expect(data).to.equal('var deps = null;');
-								done();
-							});
+							}, done);
 					});
 
 					it('should not contain itself, even if it matches the glob', function(done) {
@@ -387,8 +371,7 @@ describe('require-globify', function() {
 							function(data) {
 								expect(data).to.not.contain('./module.js');
 								expect(data).to.contain('../INCLUDED.js');
-								done();
-							});
+							}, done);
 					});
 
 					it('should be able to match non-js files', function(done) {
@@ -398,8 +381,7 @@ describe('require-globify', function() {
 							function(data) {
 								expect(data).to.not.contain('./module.js');
 								expect(data).to.contain('../template/TEMPLATED.hbs');
-								done();
-							});
+							}, done);
 					});
 
 		});
