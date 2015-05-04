@@ -391,81 +391,24 @@ describe('require-globify', function() {
 
     describe('matching the right files', function() {
 
-    describe('without recursion', function() {
-
-      it('should contain a file that matches the glob', function(done) {
-        test(
-          './dummies/module.js',
-          'var deps = require("./include/*", {mode: "hash"});',
-          function(data) {
-            expect(data).to.contain('./include/INCLUDED.js');
-            expect(data).to.not.contain('./include/nesting/NESTED_INCLUDE.js');
-          }, done);
-      });
-
-      it('should return an empty object if it doesn\'t match anything', function(done) {
-        test(
-          './dummies/module.js',
-          'var deps = require("./*", {mode: "hash"});',
-          function(data) {
-            expect(data).to.not.contain('./module.js');
-            expect(data).to.not.match(/require\(\s?("")|('')\)/);
-          }, done);
-      });
-
-      it('should not contain itself, even if it matches the glob', function(done) {
-        test(
-          './dummies/include/module.js',
-          'var deps = require("./*", {mode: "hash"});',
-          function(data) {
-            expect(data).to.not.contain('./module.js');
-            expect(data).to.contain('./INCLUDED.js');
-          }, done);
-      });
-
-      it('should be able to match non-js files', function(done) {
-        test(
-          './dummies/module.js',
-          'var deps = require("./template/*", {mode: "hash"});',
-          function(data) {
-            expect(data).to.not.contain('./module.js');
-            expect(data).to.contain('./template/TEMPLATED.hbs');
-          }, done);
-      });
-
-    });
-
-    describe('with recursion', function() {
-
-      describe('starting from current directory', function() {
+      describe('without recursion', function() {
 
         it('should contain a file that matches the glob', function(done) {
           test(
             './dummies/module.js',
-            'var deps = require("./**/*.js", {mode: "hash"});',
+            'var deps = require("./include/*", {mode: "hash"});',
             function(data) {
               expect(data).to.contain('./include/INCLUDED.js');
-              expect(data).to.contain('./include/nesting/NESTED_INCLUDE.js');
-              expect(data).to.contain('./ignore/IGNORED.js');
-            }, done);
-        });
-
-        it('should pass on options to node-glob', function(done) {
-          test(
-            './dummies/module.js',
-            'var deps = require("./**/*.js", {mode: "hash", options: {ignore: \'./ignore/**/*\'}});',
-            function(data) {
-              expect(data).to.contain('./include/INCLUDED.js');
-              expect(data).to.contain('./include/nesting/NESTED_INCLUDE.js');
-              expect(data).to.not.contain('./ignore/IGNORED.js');
+              expect(data).to.not.contain('./include/nesting/NESTED_INCLUDE.js');
             }, done);
         });
 
         it('should return an empty object if it doesn\'t match anything', function(done) {
           test(
             './dummies/module.js',
-            'var deps = require("./**/*.bogus", {mode: "hash"});',
+            'var deps = require("./*", {mode: "hash"});',
             function(data) {
+              expect(data).to.not.contain('./module.js');
               expect(data).to.not.match(/require\(\s?("")|('')\)/);
             }, done);
         });
@@ -492,72 +435,124 @@ describe('require-globify', function() {
 
       });
 
-      describe('starting from an ancestor directory', function() {
+      describe('with recursion', function() {
 
-        it('should contain a file that matches the glob', function(done) {
-          test(
-            './dummies/include/module.js',
-            'var deps = require("../**/*.js", {mode: "hash"});',
-            function(data) {
-              expect(data).to.contain('../include/INCLUDED.js');
-              expect(data).to.contain('../include/nesting/NESTED_INCLUDE.js');
-              expect(data).to.contain('../ignore/IGNORED.js');
-              expect(data).to.not.contain('../template/TEMPLATED.hbs');
-            }, done);
+        describe('starting from current directory', function() {
+
+          it('should contain a file that matches the glob', function(done) {
+            test(
+              './dummies/module.js',
+              'var deps = require("./**/*.js", {mode: "hash"});',
+              function(data) {
+                expect(data).to.contain('./include/INCLUDED.js');
+                expect(data).to.contain('./include/nesting/NESTED_INCLUDE.js');
+                expect(data).to.contain('./ignore/IGNORED.js');
+              }, done);
+          });
+
+          it('should pass on options to node-glob', function(done) {
+            test(
+              './dummies/module.js',
+              'var deps = require("./**/*.js", {mode: "hash", options: {ignore: \'./ignore/**/*\'}});',
+              function(data) {
+                expect(data).to.contain('./include/INCLUDED.js');
+                expect(data).to.contain('./include/nesting/NESTED_INCLUDE.js');
+                expect(data).to.not.contain('./ignore/IGNORED.js');
+              }, done);
+          });
+
+          it('should return an empty object if it doesn\'t match anything', function(done) {
+            test(
+              './dummies/module.js',
+              'var deps = require("./**/*.bogus", {mode: "hash"});',
+              function(data) {
+                expect(data).to.not.match(/require\(\s?("")|('')\)/);
+              }, done);
+          });
+
+          it('should not contain itself, even if it matches the glob', function(done) {
+            test(
+              './dummies/include/module.js',
+              'var deps = require("./*", {mode: "hash"});',
+              function(data) {
+                expect(data).to.not.contain('./module.js');
+                expect(data).to.contain('./INCLUDED.js');
+              }, done);
+          });
+
+          it('should be able to match non-js files', function(done) {
+            test(
+              './dummies/module.js',
+              'var deps = require("./template/*", {mode: "hash"});',
+              function(data) {
+                expect(data).to.not.contain('./module.js');
+                expect(data).to.contain('./template/TEMPLATED.hbs');
+              }, done);
+          });
+
         });
 
-        it('should pass on options to node-glob', function(done) {
-          test(
-            './dummies/include/module.js',
-            'var deps = require("../**/*.js", {mode: "hash", options: {ignore: \'../ignore/**/*\'}});',
-            function(data) {
-              expect(data).to.contain('../include/INCLUDED.js');
-              expect(data).to.contain('../include/nesting/NESTED_INCLUDE.js');
-              expect(data).to.not.contain('../ignore/IGNORED.js');
-              expect(data).to.not.contain('../template/TEMPLATED.hbs');
-            }, done);
-        });
+        describe('starting from an ancestor directory', function() {
 
-        it('should return an empty object if it doesn\'t match anything', function(done) {
-          test(
-            './dummies/include/module.js',
-            'var deps = require("../**/*.bogus", {mode: "hash"});',
-            function(data) {
-              expect(data).to.not.match(/require\(\s?("")|('')\)/);
-              expect(data).to.equal('var deps = {};');
-            }, done);
-        });
+          it('should contain a file that matches the glob', function(done) {
+            test(
+              './dummies/include/module.js',
+              'var deps = require("../**/*.js", {mode: "hash"});',
+              function(data) {
+                expect(data).to.contain('../include/INCLUDED.js');
+                expect(data).to.contain('../include/nesting/NESTED_INCLUDE.js');
+                expect(data).to.contain('../ignore/IGNORED.js');
+                expect(data).to.not.contain('../template/TEMPLATED.hbs');
+              }, done);
+          });
 
-        it('should not contain itself, even if it matches the glob', function(done) {
-          test(
-            './dummies/include/nesting/module.js',
-            'var deps = require("../*", {mode: "hash"});',
-            function(data) {
-              expect(data).to.not.contain('./module.js');
-              expect(data).to.contain('../INCLUDED.js');
-            }, done);
-        });
+          it('should pass on options to node-glob', function(done) {
+            test(
+              './dummies/include/module.js',
+              'var deps = require("../**/*.js", {mode: "hash", options: {ignore: \'../ignore/**/*\'}});',
+              function(data) {
+                expect(data).to.contain('../include/INCLUDED.js');
+                expect(data).to.contain('../include/nesting/NESTED_INCLUDE.js');
+                expect(data).to.not.contain('../ignore/IGNORED.js');
+                expect(data).to.not.contain('../template/TEMPLATED.hbs');
+              }, done);
+          });
 
-        it('should be able to match non-js files', function(done) {
-          test(
-            './dummies/include/module.js',
-            'var deps = require("../template/*", {mode: "hash"});',
-            function(data) {
-              expect(data).to.not.contain('./module.js');
-              expect(data).to.contain('../template/TEMPLATED.hbs');
-            }, done);
+          it('should return an empty object if it doesn\'t match anything', function(done) {
+            test(
+              './dummies/include/module.js',
+              'var deps = require("../**/*.bogus", {mode: "hash"});',
+              function(data) {
+                expect(data).to.not.match(/require\(\s?("")|('')\)/);
+                expect(data).to.equal('var deps = {};');
+              }, done);
+          });
+
+          it('should not contain itself, even if it matches the glob', function(done) {
+            test(
+              './dummies/include/nesting/module.js',
+              'var deps = require("../*", {mode: "hash"});',
+              function(data) {
+                expect(data).to.not.contain('./module.js');
+                expect(data).to.contain('../INCLUDED.js');
+              }, done);
+          });
+
+          it('should be able to match non-js files', function(done) {
+            test(
+              './dummies/include/module.js',
+              'var deps = require("../template/*", {mode: "hash"});',
+              function(data) {
+                expect(data).to.not.contain('./module.js');
+                expect(data).to.contain('../template/TEMPLATED.hbs');
+              }, done);
+          });
+
         });
 
       });
 
     });
-
-		});
-
-		describe('')
-
-    // should follow the 'ext' option when generating identifiers
-    // should follow the 'path' option when generating identifiers
 
   });
 });
