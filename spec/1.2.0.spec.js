@@ -7,35 +7,41 @@ var test = (function() {
   return function(location, content, checkData, done) {
     runTransform(
       transform,
-      path.resolve(__dirname, location), {
-        content: content
-      },
+      path.resolve(__dirname, location),
+      { content: content },
       function(err, data) {
-        expect(err).to.be.null;
-        checkData(data);
-        if (done) {
-          done();
+        if (err) {
+          console.error(err);
+          throw err;
         }
+        try {
+          checkData(data);
+        } catch (ex) {
+          console.error(ex);
+        }
+        done();
       });
   }
 })();
-var compare = (function() {
-  return function(location, one, other, done) {
-    test(
-      location,
-      one,
-      function(data1) {
-        test(
-          location,
-          other,
-          function(data2) {
-            expect(data1).to.equal(data2);
-          }, done);
-      });
-  }
-})();
+var compare = function(location, one, other, done) {
+  var oneResult, otherResult;
+  var finish = function() {
+    if (typeof otherResult === 'undefined' || typeof oneResult === 'undefined') {
+      return;
+    }
+    expect(otherResult).to.equal(oneResult);
+    done();
+  };
+  test(location, one, function(data) {
+    oneResult = data;
+  }, finish);
+  test(location, other, function(data) {
+    otherResult = data;
+  }, finish);
+};
 
 describe('require-globify', function() {
+  // this.timeout(1000);
 
   describe('comment handling', function() {
 
@@ -251,7 +257,7 @@ describe('require-globify', function() {
     describe('without recursion', function() {
 
       it('should contain a file that matches the glob', function(done) {
-        compare(
+        compare.call(this,
           './dummies/module.js',
           'require("./include/*", {mode: "expand"});',
           'require("./include/*", {glob: true});',
@@ -259,7 +265,7 @@ describe('require-globify', function() {
       });
 
       it('should pass on options to node-glob', function(done) {
-        compare(
+        compare.call(this,
           './dummies/module.js',
           'require("./include/*.js", {mode: "expand", options: {ignore: \'./include/*2.*\'}});',
           'require("./include/*.js", {glob: true, options: {ignore: \'./include/*2.*\'}});',
@@ -267,7 +273,7 @@ describe('require-globify', function() {
       });
 
       it('should remove itself if it doesn\'t match anything', function(done) {
-        compare(
+        compare.call(this,
           './dummies/module.js',
           'require("./*", {mode: "expand"});',
           'require("./*", {glob: true});',
@@ -275,7 +281,7 @@ describe('require-globify', function() {
       });
 
       it('should not contain itself, even if it matches the glob', function(done) {
-        compare(
+        compare.call(this,
           './dummies/include/module.js',
           'require("./*", {mode: "expand"});',
           'require("./*", {glob: true});',
@@ -283,7 +289,7 @@ describe('require-globify', function() {
       });
 
       it('should be able to match non-js files', function(done) {
-        compare(
+        compare.call(this,
           './dummies/module.js',
           'require("./template/*", {mode: "expand"});',
           'require("./template/*", {glob: true});',
@@ -297,7 +303,7 @@ describe('require-globify', function() {
       describe('starting from current directory', function() {
 
         it('should contain a file that matches the glob', function(done) {
-          compare(
+          compare.call(this,
             './dummies/module.js',
             'require("./**/*.js", {mode: "expand"});',
             'require("./**/*.js", {glob: true});',
@@ -305,7 +311,7 @@ describe('require-globify', function() {
         });
 
         it('should pass on options to node-glob', function(done) {
-          compare(
+          compare.call(this,
             './dummies/module.js',
             'require("./**/*.js", {mode: "expand", options: {ignore: \'./ignore/**/*\'}});',
             'require("./**/*.js", {glob: true, options: {ignore: \'./ignore/**/*\'}});',
@@ -313,7 +319,7 @@ describe('require-globify', function() {
         });
 
         it('should remove itself if it doesn\'t match anything', function(done) {
-          compare(
+          compare.call(this,
             './dummies/module.js',
             'require("./**/*.bogus", {mode: "expand"});',
             'require("./**/*.bogus", {glob: true});',
@@ -321,7 +327,7 @@ describe('require-globify', function() {
         });
 
         it('should not contain itself, even if it matches the glob', function(done) {
-          compare(
+          compare.call(this,
             './dummies/include/module.js',
             'require("./*", {mode: "expand"});',
             'require("./*", {glob: true});',
@@ -329,7 +335,7 @@ describe('require-globify', function() {
         });
 
         it('should be able to match non-js files', function(done) {
-          compare(
+          compare.call(this,
             './dummies/module.js',
             'require("./template/*", {mode: "expand"});',
             'require("./template/*", {glob: true});',
@@ -341,7 +347,7 @@ describe('require-globify', function() {
       describe('with recursion starting from an ancestor directory', function() {
 
         it('should contain a file that matches the glob', function(done) {
-          compare(
+          compare.call(this,
             './dummies/include/module.js',
             'require("../**/*.js", {mode: "expand"});',
             'require("../**/*.js", {glob: true});',
@@ -349,7 +355,7 @@ describe('require-globify', function() {
         });
 
         it('should pass on options to node-glob', function(done) {
-          compare(
+          compare.call(this,
             './dummies/include/module.js',
             'require("../**/*.js", {mode: "expand", options: {ignore: \'../ignore/**/*\'}});',
             'require("../**/*.js", {glob: true, options: {ignore: \'../ignore/**/*\'}});',
@@ -357,7 +363,7 @@ describe('require-globify', function() {
         });
 
         it('should remove itself if it doesn\'t match anything', function(done) {
-          compare(
+          compare.call(this,
             './dummies/include/module.js',
             'require("../**/*.bogus", {mode: "expand"});',
             'require("../**/*.bogus", {glob: true});',
@@ -365,7 +371,7 @@ describe('require-globify', function() {
         });
 
         it('should not contain itself, even if it matches the glob', function(done) {
-          compare(
+          compare.call(this,
             './dummies/include/nesting/module.js',
             'require("../*", {mode: "expand"});',
             'require("../*", {glob: true});',
@@ -373,7 +379,7 @@ describe('require-globify', function() {
         });
 
         it('should be able to match non-js files', function(done) {
-          compare(
+          compare.call(this,
             './dummies/include/module.js',
             'require("../template/*", {mode: "expand"});',
             'require("../template/*", {glob: true});',
@@ -398,6 +404,7 @@ describe('require-globify', function() {
             './dummies/module.js',
             'var deps = require("./include/*", {mode: "hash"});',
             function(data) {
+              console.log('checking data', data);
               expect(data).to.contain('./include/INCLUDED.js');
               expect(data).to.not.contain('./include/nesting/NESTED_INCLUDE.js');
             }, done);

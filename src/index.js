@@ -1,7 +1,15 @@
 var glob = require('glob');
 var path = require('path');
 var fs   = require('fs');
-var resolvers = require('../resolvers/*', {mode: "hash", key: "reduce"});
+// var resolvers = require('../resolvers/*', {mode: "hash", key: "reduce"});
+var resolvers = {
+  'path': require('../resolvers/path.js'),
+  'reduce-postfix': require('../resolvers/reduce-postfix.js'),
+  'reduce-prefix': require('../resolvers/reduce-prefix.js'),
+  'reduce': require('../resolvers/reduce.js'),
+  'strip-ext': require('../resolvers/strip-ext.js')
+};
+
 
 module.exports = require('browserify-transform-tools').makeRequireTransform(
   'require-globify',
@@ -10,6 +18,7 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
     evaluateArguments: true
   },
   function (args, opts, done) {
+    console.log('running transform');
     // args: args passed to require()
     // opts: opts used by browserify for the current file
     // done: browserify callback
@@ -24,17 +33,6 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
     // get the second param to require as our config
     config = args[1];
 
-    // if the config object doesn't match our specs, abort
-    if (typeof config.mode === 'undefined') {
-      return done();
-    }
-
-    // set default key option to ["reduce"]
-    config.key = config.key || ["reduce"];
-    if (!Array.isArray(config.key)) {
-      config.key = [config.key];
-    }
-
     // backwards compatibility for glob and hash options, replaced by mode
     if (config.glob) {
       config.mode = "expand";
@@ -43,6 +41,18 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
       if (config.hash === "path") {
         config.key = ["path"];
       }
+    }
+
+    // if the config object doesn't match our specs, abort
+    if (typeof config.mode === 'undefined') {
+      console.log('doesnt match require-globify api');
+      return done();
+    }
+
+    // set default key option to ["reduce"]
+    config.key = config.key || ["reduce"];
+    if (!Array.isArray(config.key)) {
+      config.key = [config.key];
     }
 
     // backwards compatibility for ext option
@@ -72,11 +82,14 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
     // only match files
     globOpts.nodir = true;
 
+    console.log('going for glob');
+
     glob(pattern, globOpts, function(err, files) {
       // if there was an error with glob, abort here
       if (err) {
         return done(err);
       }
+      console.log('the return of the glob: ', files);
 
       try {
 
@@ -105,14 +118,17 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
               }, false)
             );
           case "hash":
+            console.log('going for hash');
             // wrap in anonymous function to have a private scope
             return done(null, (function() {
               var hash = {};
               for (var i=0, l=files.length, file=files[i]; i<l; file=files[++i]) {
+                console.log('using file %d of %d', i, l);
                 hash[file] = file;
               }
               for (var i=0, l=config.key.length, key=config.key[i]; i<l; key=config.key[++i]) {
-                if (Object.hasOwnProperty(resolvers, key)) {
+                console.log('using resolver %d of %d', i, l);
+                if (resolvers.hasOwnProperty(key)) {
                   hash = resolvers[key](opts.file, hash, config);
                 } else {
                   throw "Unknown key resolver: " + key;
