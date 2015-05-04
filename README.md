@@ -38,25 +38,54 @@ The second parameter to require must be an object and supports the following key
 
   - `'hash'`: replaces the call with an object.
 
-  Every matched file is represented by an identifier as the key and it's respective require call as the value. The identifiers can be tweaked with other options.
+  Every matched file is represented by a key and it's respective require call as the value. The keys can be tweaked with other options.
   This replaces the option `hash: true` in *<1.2.0*.
 
-### ext *[optional, default:false]*
-  This option sets if the file extension should be included when determining the identifier of a file.
+  - You are very welcome to suggest other options by starting an [issue](https://github.com/capaj/require-globify/issues)!.
+
+  E.g. 'list' to return the require calls wrapped in an array, if you'd find a use-case for it :p
+
+### key *[optional, default:"reduce"]*
+  The list of transforms to determine the key for matched files.
+
+  Possible values are
+  - `'path'`
+
+  Every file uses it's relative path (as returned by node-glob) as its key.
+  This replaces the options `hash: "path", ext: true` in *<1.2.0*.
+
+  - `'reduce-prefix'`
+
+  Tries to reduce the key by determining the largest common prefix of each match and removing them from the matched filename.
+
+  - `'reduce-postfix'`
+
+  Tries to reduce the key by determining the largest common postfix of each match and removing them from the matched filename.
+
+  - `'reduce'`
+
+  Combination of `reduce-prefix` and `reduce-postfix`. In most cases this will replace the options `hash: true, ext: false` in *<1.2.0*.
+
+  - You are very welcome to suggest other options by starting an [issue](https://github.com/capaj/require-globify/issues)!.
+
+
 
 ### options *[optional, default:{}]*
   This allows options to be provided to [node-glob](https://www.npmjs.com/package/glob), which is used internally to find matching files.
 
+### ext *[deprecated, optional, default:false]*
+  This option is only considered if `key:"path"`. If this is false, the extension is stripped from the path (but only if this doesn't create duplicate keys).
+
 ### glob *[deprecated]*
-  This option is replaced by `mode: 'expand'`, but remains supported until version 2.\*.\*
+  This option is replaced by `mode: 'expand'`, but remains supported until version 2.0.0
 
 ### hash *[deprecated]*
-  This option is replaced by `mode: 'hash'`, but remains supported until version 2.\*.\*
+  This option is replaced by `mode: 'hash'` and `key: 'path'`, but remains supported until version 2.0.0
 
 
 ## Credits
 Original concept from Jiří špác, completely reimplemented by Adriaan Callaerts([@call-a3](https://github.com/call-a3)).
-Hashing with paths implemented by Pat Collins.
+Hashing with paths implemented by Pat Collins([@patcoll](https://github.com/patcoll)).
 
 
 ## License
