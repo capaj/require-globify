@@ -1,15 +1,17 @@
 {
   "name": "require-globify",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "transform for browserify, which allows to require files with globbing expressions",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "scripts": {
-    "test": "mocha spec"
+    "test": "mocha spec",
+    "prepublish": "node build.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/capaj/require-globify.git"
   },
+  "files": ["lib", "resolvers"],
   "keywords": [
     "browserify",
     "browserify-transform",
@@ -35,13 +37,11 @@
   },
   "homepage": "https://github.com/capaj/require-globify",
   "dependencies": {
-    "browserify-transform-tools": "^1.3.0",
-    "glob": "^4.3.5"
+    "browserify-transform-tools": "^1.3.3",
+    "glob": "^5.0.5"
   },
   "devDependencies": {
-    "browserify": "^8.1.3",
-    "glob": "^4.3.5",
-    "mocha": "^2.1.0",
-    "through2": "^1.1.1"
+    "chai": "^2.3.0",
+    "mocha": "^2.2.4"
   }
 }
