@@ -1,3 +1,5 @@
+var path = require('path');
+
 module.exports = function(base, files, config) {
   var key, newKey;
   // contains map of stripped keys
