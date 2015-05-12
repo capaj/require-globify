@@ -1,16 +1,11 @@
 module.exports = function(base, files, config) {
   var key, keys, common;
 
-  if (Object.keys(files).length === 1) {
-    var file = Object.keys(files)[0];
+  keys = Object.keys(files);
+  if (keys.length === 1) {
     var path = require('path');
-    files[file] = path.basename(file, path.extname(file));
+    files[keys[0]] = path.basename(keys[0], path.extname(keys[0]));
     return files;
-  }
-
-  keys = [];
-  for (var file in files) {
-    keys.push(files[file]);
   }
 
   common = keys[0].substr(0, 1);
@@ -21,8 +16,8 @@ module.exports = function(base, files, config) {
   }
   common = common.substr(0, common.length-1);
 
-  for (var file in files) {
-    files[file] = files[file].substr(common.length);
+  for (var i=0, l=keys.length, key=keys[i]; i<l; key=keys[++i]) {
+    files[key] = files[key].substr(common.length);
   }
   return files;
 }
