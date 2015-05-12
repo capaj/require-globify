@@ -1,4 +1,3 @@
-// var resolves = require('../resolves/*', {mode: "hash", key: "reduce"});
 var resolvers = {
   'path-reduce': require('../resolvers/path-reduce'),
   'path': require('../resolvers/path'),

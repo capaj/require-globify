@@ -3,8 +3,8 @@ var path = require('path');
 var fs = require('fs');
 
 var modes = {
-  'expand': require('../modes/expand.js'),
-  'hash': require('../modes/hash.js')
+  'expand': require('./modes/expand'),
+  'hash': require('./modes/hash')
 };
 
 module.exports = require('browserify-transform-tools').makeRequireTransform(
@@ -17,7 +17,7 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
     // opts: opts used by browserify for the current file
     // done: browserify callback
 
-    var config, pattern, globOpts, mode, result;
+    var config, pattern, globOpts, mode, result, sei;
 
     // only trigger if require was used with exactly 2 params that match our expectations
     if (args.length !== 2 || typeof args[0] !== 'string' || typeof args[1] !== 'object') {
@@ -49,9 +49,12 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
         config.resolve.push('strip-ext');
       }
     } else { // remove ext
+      sei = config.resolve.indexOf('strip-ext');
       // this wont work if strip-ext is there multiple times
       // but what's the change of that happening?
-      config.resolve.splice(config.resolve.indexOf('strip-ext'), 1)
+      if (sei !== -1) {
+        config.resolve.splice(sei, 1);
+      }
     }
 
     // if the config object doesn't match our specs, abort
