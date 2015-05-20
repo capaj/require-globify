@@ -306,7 +306,7 @@ describe('backwards compatibility', function() {
 
   describe('hash:true', function() { // default ext:false
 
-    describe('default', function() {
+    describe('[default]', function() {
       it('should equal {mode:"hash"}', function(done) {
         compare('./dummies/module.js',
           'require("./include/**/*", {hash: true});',
@@ -316,7 +316,7 @@ describe('backwards compatibility', function() {
 
     });
 
-    describe('ext:false', function() {
+    describe(', ext:false', function() {
 
       it('should equal {mode:"hash"}', function(done) {
         compare('./dummies/module.js',
@@ -327,7 +327,7 @@ describe('backwards compatibility', function() {
 
     });
 
-    describe('ext:true', function() {
+    describe(', ext:true', function() {
 
       it('should equal {mode:"hash", resolve:"path-reduce"}', function(done) {
         compare('./dummies/module.js',
@@ -342,7 +342,7 @@ describe('backwards compatibility', function() {
 
   describe('hash:"path"', function() { // default ext:false
 
-    describe('default', function() {
+    describe('[default]', function() {
       it('should equal {mode:"hash", resolve:["path", "strip-ext"]}', function(done) {
         compare('./dummies/module.js',
           'require("./include/**/*", {hash: "path"});',
@@ -352,7 +352,7 @@ describe('backwards compatibility', function() {
 
     });
 
-    describe('ext:false', function() {
+    describe(', ext:false', function() {
 
       it('should equal {mode:"hash", resolve:["path", "strip-ext"]}', function(done) {
         compare('./dummies/module.js',
@@ -363,12 +363,12 @@ describe('backwards compatibility', function() {
 
     });
 
-    describe('ext:true', function() {
+    describe(', ext:true', function() {
 
-      it('should equal {mode:"hash", resolve:"path", ext:true}', function(done) {
+      it('should equal {mode:"hash", resolve:"path"}', function(done) {
         compare('./dummies/module.js',
           'require("./include/**/*", {hash: "path", ext: true});',
-          'require("./include/**/*", {mode: "hash", resolve:"path", ext:true});',
+          'require("./include/**/*", {mode: "hash", resolve:"path"});',
           done);
       });
 

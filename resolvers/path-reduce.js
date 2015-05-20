@@ -1,10 +1,11 @@
 var path = require('path');
 
 module.exports = function(base, files, config) {
-  var key, keys, common;
+  var key, keys, common, file;
 
   if (Object.keys(files).length === 1) {
-    files[file] = path.basename(file, path.extname(file));
+    file = Object.keys(files)[0];
+    files[file] = path.basename(file);
     return files;
   }
 

@@ -1,15 +1,14 @@
 var path = require('path');
 
 module.exports = function(base, files, config) {
-  var key, newKey;
-  // contains map of stripped keys
+  var filenames = Object.keys(files);
+  // contains map of stripped filenames
   var conflicts = {};
-  for (var file in files) {
-    key = files[file];
-    if (files.hasOwnProperty(key)) {
-      newKey = key.substr(0, key.length - path.extname(key).length);
+  for (var i=0, l=filenames.length; i<l; i++) {
+    (function(file, key) {
+      var newKey = key.substr(0, key.length - path.extname(key).length);
       // if already file with same stripping
-      if (newKey in conflicts) {
+      if (conflicts.hasOwnProperty(newKey)) {
         // check if first conflict
         if (conflicts[newKey] !== false) {
           // revert previous file stripping
@@ -22,7 +21,7 @@ module.exports = function(base, files, config) {
         // remember for possible later conflicts
         conflicts[newKey] = [file, key];
       }
-    }
+    })(filenames[i], files[filenames[i]]);
   }
   return files;
 }

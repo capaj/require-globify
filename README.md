@@ -95,13 +95,14 @@ The second parameter to require must be an object and supports the following key
   This allows options to be provided to [node-glob](https://www.npmjs.com/package/glob), which is used internally to find matching files.
 
 ### ext *[deprecated, optional, default:false]*
-  This option is replaced by `resolver: 'strip-ext'`, but remains supported until version 2.0.0
+  This option is replaced by `resolve: 'strip-ext'`, but remains supported until version 2.0.0.
+  **WARNING**: Backwards compatibility is not available in combination with the newer "resolve" option.
 
 ### glob *[deprecated]*
   This option is replaced by `mode: 'expand'`, but remains supported until version 2.0.0
 
 ### hash *[deprecated]*
-  This option is replaced by `mode: 'hash'` and `resolver: ['path', 'strip-ext']`, but remains supported until version 2.0.0
+  This option is replaced by `mode: 'hash'` and `resolve: ['path', 'strip-ext']`, but remains supported until version 2.0.0
 
 
 ## Credits
