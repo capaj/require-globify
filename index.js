@@ -27,6 +27,8 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
     // get the second param to require as our config
     config = args[1];
 
+    var skipExtCompat = typeof config.resolve !== 'undefined';
+
     // backwards compatibility for glob and hash options, replaced by mode
     if (config.glob) {
       config.mode = "expand";
@@ -44,6 +46,7 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
     }
 
     // backwards compatibility for ext option
+    if (!skipExtCompat) {
     if (typeof config.ext === 'undefined' || config.ext === false) {
       if (config.resolve.indexOf('strip-ext') === -1) {
         config.resolve.push('strip-ext');
@@ -56,6 +59,7 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
         config.resolve.splice(sei, 1);
       }
     }
+    }
 
     // if the config object doesn't match our specs, abort
     if (typeof config.mode === 'undefined') {
@@ -64,7 +68,9 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
     }
 
     // find mode
-    if (modes.hasOwnProperty(config.mode)) {
+    if (typeof config.mode === 'function') {
+      mode = config.mode;
+    } else if (modes.hasOwnProperty(config.mode)) {
       mode = modes[config.mode];
     } else {
       console.warn("Unknown mode: " + config.mode);
