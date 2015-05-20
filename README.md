@@ -1,14 +1,16 @@
-require-globify
-===============
+# require-globify
 
-[![Build Status](https://travis-ci.org/capaj/require-globify.svg?branch=develop)](https://travis-ci.org/capaj/require-globify)
-[![Dependency Status](https://david-dm.org/capaj/require-globify.svg)](https://david-dm.org/capaj/require-globify) [![devDependency Status](https://david-dm.org/capaj/require-globify/dev-status.svg)](https://david-dm.org/capaj/require-globify#info=devDependencies)
+[![Build Status][travis-shield]][travis]
+[![Build Status][travis-shield-develop]][travis]
+[![Dependency Status][dependencies-shield]][dependencies]
+[![devDependency Status][dependencies-dev-shield]][dependencies-dev]
 
 Transform for browserify, which allows to require files with globbing expressions.
 
+
 ## Installation
 
-[![require-globify](https://nodei.co/npm/require-globify.png?small=true)](https://nodei.co/npm/require-globify)
+[![require-globify](https://nodei.co/npm/require-globify.png?small=true)][npm]
 
 ## Usage
 
@@ -120,3 +122,12 @@ Hashing with paths implemented by Pat Collins([@patcoll](https://github.com/patc
  - 1.0.\*: Bugfixes.
  - 1.0.0: Rewrite based on browserify-transform-tools.
  - 0.\*  : Base implementation by Jiří špác([@capaj](https://github.com/capaj)).
+
+[npm]:                     https://www.npmjs.com/package/require-globify
+[travis]:                  https://travis-ci.org/capaj/require-globify
+[travis-shield]:           https://img.shields.io/travis/capaj/require-globify.svg
+[travis-shield-develop]:   https://img.shields.io/travis/capaj/require-globify/develop.svg?label=develop%20build
+[dependencies]:            https://david-dm.org/capaj/require-globify
+[dependencies-dev]:        https://david-dm.org/capaj/require-globify#info=devDependencies
+[dependencies-shield]:     https://img.shields.io/david/capaj/require-globify.svg
+[dependencies-dev-shield]: https://img.shields.io/david/dev/capaj/require-globify.svg
