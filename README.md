@@ -117,6 +117,9 @@ Hashing with paths implemented by Pat Collins([@patcoll](https://github.com/patc
 
 
 ## Changelog
+ - 1.2.1:
+   - Fixed bugs [#12](https://github.com/capaj/require-globify/issues/12), [#13](https://github.com/capaj/require-globify/issues/13) and [#14](https://github.com/capaj/require-globify/issues/14)
+   - Streamlined badges on README
  - 1.2.0: Complete overhaul of architecture, adding new features such as pass-through options for node-glob and multiple bugfixes.
  - 1.1.0: Added hashing with path.
  - 1.0.\*: Bugfixes.
