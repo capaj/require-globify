@@ -9,4 +9,5 @@ deploy:
     secure: adha9WPYIjf0QSGS+X28+8oK2QZVQNdaTCTNKOFlJk/rR1TRsnS9KWAnKvFjOhjWyzY85ku+n8rrs6cfZDmxf2IO5BD1uw3Hy8eLakE8lhVi3W5pKzcKqe8iVZObr1kMuQLtrT+r5F3pdTNpzpnP137VGPAODD4EwLLPV7ugawU=
   on:
     tags: true
+    all_branches: true
     repo: capaj/require-globify
