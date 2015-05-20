@@ -63,3 +63,14 @@ describe('issues/13', function() {
       }, done);
   });
 });
+
+describe('issues/14', function() {
+  it('should allow the use of a custom mode', function(done) {
+    test(
+      './dummies/include/module.js',
+      'var deps = require("./nesting/*.js", {mode: function(base, files, config) {return "require(\'nothing\')"}});', //default resolve: ["path-reduce", "strip-ext"]
+      function(data) {
+        expect(data).to.equal("var deps = require(\'nothing\');");
+      }, done);
+  });
+});

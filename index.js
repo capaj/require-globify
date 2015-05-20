@@ -68,7 +68,9 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
     }
 
     // find mode
-    if (modes.hasOwnProperty(config.mode)) {
+    if (typeof config.mode === 'function') {
+      mode = config.mode;
+    } else if (modes.hasOwnProperty(config.mode)) {
       mode = modes[config.mode];
     } else {
       console.warn("Unknown mode: " + config.mode);
