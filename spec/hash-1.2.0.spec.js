@@ -25,6 +25,7 @@ describe('mode:"hash"', function() {
           'var deps = require("./*", {mode: "hash"});',
           function(data) {
             expect(data).to.not.contain('./module.js');
+            expect(data).to.contain('{}');
             expect(data).to.not.match(/require\(\s?("")|('')\)/);
           }, done);
       });
@@ -82,6 +83,7 @@ describe('mode:"hash"', function() {
             './dummies/module.js',
             'var deps = require("./**/*.bogus", {mode: "hash"});',
             function(data) {
+              expect(data).to.contain('{}');
               expect(data).to.not.match(/require\(\s?("")|('')\)/);
             }, done);
         });
