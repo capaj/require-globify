@@ -1,11 +1,4 @@
-var resolvers = {
-  'path-reduce': require('../resolvers/path-reduce'),
-  'path': require('../resolvers/path'),
-  'reduce-postfix': require('../resolvers/reduce-postfix'),
-  'reduce-prefix': require('../resolvers/reduce-prefix'),
-  'reduce': require('../resolvers/reduce'),
-  'strip-ext': require('../resolvers/strip-ext')
-};
+var resolvers = require('../resolvers');
 
 module.exports = function(base, files, config) {
   var hash, i, l, file, resolve;
