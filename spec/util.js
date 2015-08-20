@@ -39,22 +39,8 @@ var compare = function compare(location, one, other, done) {
   }, finish);
 };
 
-var matchFn = function matchFn(full_regex, deps_regex) {
-  return function(data) {
-    return data.match(full_regex)[1].match(deps_regex).slice(1).reduce(function(acc, cur, idx, lst) {
-      if (acc.length === 0 || typeof acc[acc.length-1].path === 'string') {
-        acc.push({label: cur.substr(1, cur.length-2)});
-      } else {
-        acc[acc.length-1].path = cur.substr(1, cur.length-2);
-      }
-      return acc;
-    }, []);
-  };
-};
-
 module.exports = {
   expect: expect,
   test: test,
-  compare: compare,
-  matchFn: matchFn
+  compare: compare
 };

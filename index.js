@@ -4,7 +4,8 @@ var fs = require('fs');
 
 var modes = {
   'expand': require('./modes/expand'),
-  'hash': require('./modes/hash')
+  'hash': require('./modes/hash'),
+  'list': require('./modes/list')
 };
 
 module.exports = require('browserify-transform-tools').makeRequireTransform(

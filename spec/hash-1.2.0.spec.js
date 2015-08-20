@@ -5,7 +5,28 @@ var util = require('./util');
 var test = util.test;
 var compare = util.compare;
 var expect = util.expect;
-var matches = util.matchFn(REGEX_FULL, REGEX_DEPS);
+
+var matches = function(data) {
+  var content = data.match(REGEX_FULL)[1];
+  if (typeof content === 'undefined') {
+    return [];
+  } else {
+    var acc = [];
+    acc.names = [];
+    acc.paths = [];
+    return content.match(REGEX_DEPS).slice(1).reduce(function(acc, cur, idx, lst) {
+      var name = cur.substr(1, cur.length-2);
+      if (acc.length === 0 || typeof acc[acc.length-1].path === 'string') {
+        acc.push({name: name});
+        acc.names.push(name);
+      } else {
+        acc[acc.length-1].path = name;
+        acc.paths.push(name);
+      }
+      return acc;
+    }, acc);
+  }
+};
 
 
 describe('mode:"hash"', function() {
@@ -21,10 +42,11 @@ describe('mode:"hash"', function() {
           function(data) {
             expect(data).to.match(REGEX_FULL);
             var includes = matches(data);
-            console.log(includes);
             expect(includes).to.have.length(2);
-            expect(data).to.contain('./include/INCLUDED.js');
-            expect(data).to.not.contain('./include/nesting/NESTED_INCLUDE.js');
+            expect(includes[0].name).to.equal('INCLUDED');
+            expect(includes[0].path).to.equal('./include/INCLUDED.js');
+            expect(includes[1].name).to.equal('INCLUDED2');
+            expect(includes[1].path).to.equal('./include/INCLUDED2.js');
           }, done);
       });
 
@@ -34,7 +56,8 @@ describe('mode:"hash"', function() {
           'var deps = require("./*", {mode: "hash"});',
           function(data) {
             expect(data).to.match(REGEX_FULL);
-            expect(data).to.not.contain('./module.js');
+            var includes = matches(data);
+            expect(includes).to.have.length(0);
             expect(data).to.contain('{}');
             expect(data).to.not.match(/require\(\s?("")|('')\)/);
           }, done);
@@ -46,8 +69,9 @@ describe('mode:"hash"', function() {
           'var deps = require("./*", {mode: "hash"});',
           function(data) {
             expect(data).to.match(REGEX_FULL);
-            expect(data).to.not.contain('./module.js');
-            expect(data).to.contain('./INCLUDED.js');
+            var includes = matches(data);
+            expect(includes.paths).to.not.contain('./module.js');
+            expect(includes.paths).to.contain('./INCLUDED.js');
           }, done);
       });
 
