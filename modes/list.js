@@ -33,7 +33,7 @@ module.exports = function(base, files, config) {
       return [
         (acc ? acc + "," : ""),
         "{",
-        "name: '" + hash[file].replace(/\\/g, '/') + "'",
+        "name:'" + hash[file].replace(/\\/g, '/') + "'",
         ",",
         "module:require('" + file + "')",
         "}"
