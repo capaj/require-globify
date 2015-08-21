@@ -1,5 +1,7 @@
 var REGEX_FULL = /var deps = \[ *({ *name: *(?:(?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)"))) *, *module: *require\((?:(?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\) *}(?: *, *{name: *(?:(?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)"))) *, *module: *require\((?:(?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\) *})*)? *];/;
-var REGEX_DEPS = /{ *name: *((?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")) *, *module: *require\(((?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\) *}(?: *, *{ *name: *((?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")) *, *module: *require\(((?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\) *})*/;
+var REGEX_DEPS = /{ *name: *((?:'(?:(?:(?:\\(?=')')|[^'])*?)')|(?:"(?:(?:(?:\\(?=")")|[^"])*?)")) *, *module: *require\(((?:(?:'(?:(?:(?:\\(?=')')|[^'])*?)')|(?:"(?:(?:(?:\\(?=")")|[^"])*?)")))\) *} *,? */g;
+//" atom's syntax highlighter has issues with quotation in the above regex
+var REGEX_DEP_ONE = /{ *name: *((?:'(?:(?:(?:\\(?=')')|[^'])*?)')|(?:"(?:(?:(?:\\(?=")")|[^"])*?)")) *, *module: *require\(((?:(?:'(?:(?:(?:\\(?=')')|[^'])*?)')|(?:"(?:(?:(?:\\(?=")")|[^"])*?)")))\) *}/;
 
 var util = require('./util');
 var test = util.test;
@@ -14,19 +16,16 @@ var matches = function(data) {
     var acc = [];
     acc.names = [];
     acc.paths = [];
-    console.log(content);
-    return content.match(REGEX_DEPS).slice(1).reduce(function(acc, cur, idx, lst) {
-      var name = cur.substr(1, cur.length-2);
-      console.log('Encountered match: ' + name);
-      if (acc.length === 0 || typeof acc[acc.length-1].path === 'string') {
-        acc.push({name: name});
-        acc.names.push(name);
-      } else {
-        acc[acc.length-1].path = name;
-        acc.paths.push(name);
-      }
-      return acc;
-    }, acc);
+    content.replace(REGEX_DEPS, function(match) {
+      var mapping = match.match(REGEX_DEP_ONE).slice(1).map(function(str) {
+        return str.substr(1, str.length-2);
+      });
+      acc.push({name: mapping[0], path: mapping[1]});
+      acc.names.push(mapping[0]);
+      acc.paths.push(mapping[1]);
+      return '';
+    });
+    return acc;
   }
 };
 
@@ -259,14 +258,13 @@ describe('mode:"list"', function() {
           function(data) {
             expect(data).to.match(REGEX_FULL);
             var includes = matches(data);
-            console.log(includes);
             expect(includes).to.have.length(3);
             expect(includes[0].name).to.equal('INCLUDED.js');
-            expect(includes[0].path).to.equal('include/INCLUDED.js');
+            expect(includes[0].path).to.equal('./include/INCLUDED.js');
             expect(includes[1].name).to.equal('INCLUDED2.js');
-            expect(includes[1].path).to.equal('include/INCLUDED2.js');
+            expect(includes[1].path).to.equal('./include/INCLUDED2.js');
             expect(includes[2].name).to.equal('nesting/NESTED_INCLUDE.js');
-            expect(includes[2].path).to.equal('include/nesting/NESTED_INCLUDE.js');
+            expect(includes[2].path).to.equal('./include/nesting/NESTED_INCLUDE.js');
           }, done);
       });
 
@@ -280,7 +278,6 @@ describe('mode:"list"', function() {
           'var deps = require("./include/**/*", {mode: "list", resolve: "path", ext:true});',
           function(data) {
             expect(data).to.match(REGEX_FULL);
-            console.log(data);
             var includes = matches(data);
             expect(includes).to.have.length(3);
             expect(includes[0].name).to.equal('./include/INCLUDED.js');
@@ -299,13 +296,19 @@ describe('mode:"list"', function() {
           function(data) {
             expect(data).to.match(REGEX_FULL);
             var includes = matches(data);
-            expect(includes).to.have.length(3);
-            expect(includes[0].name).to.equal('../include/INCLUDED.js');
-            expect(includes[0].path).to.equal('../include/INCLUDED.js');
-            expect(includes[1].name).to.equal('../include/INCLUDED2.js');
-            expect(includes[1].path).to.equal('../include/INCLUDED2.js');
-            expect(includes[2].name).to.equal('../include/nesting/NESTED_INCLUDE.js');
-            expect(includes[2].path).to.equal('../include/nesting/NESTED_INCLUDE.js');
+            expect(includes).to.have.length(6);
+            expect(includes[0].name).to.equal('./IGNORED.js');
+            expect(includes[0].path).to.equal('../ignore/IGNORED.js');
+            expect(includes[1].name).to.equal('../include/INCLUDED.js');
+            expect(includes[1].path).to.equal('../include/INCLUDED.js');
+            expect(includes[2].name).to.equal('../include/INCLUDED2.js');
+            expect(includes[2].path).to.equal('../include/INCLUDED2.js');
+            expect(includes[3].name).to.equal('../include/nesting/NESTED_INCLUDE.js');
+            expect(includes[3].path).to.equal('../include/nesting/NESTED_INCLUDE.js');
+            expect(includes[4].name).to.equal('../template/TEMPLATED.hbs');
+            expect(includes[4].path).to.equal('../template/TEMPLATED.hbs');
+            expect(includes[5].name).to.equal('../template/TEMPLATED.js');
+            expect(includes[5].path).to.equal('../template/TEMPLATED.js');
           }, done);
       });
 
