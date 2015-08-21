@@ -4,7 +4,7 @@ module.exports = function(base, files, config) {
   var hash, i, l, file, resolve;
 
   if (files.length === 0) {
-    return '{}';
+    return '[]';
   }
 
   // map every matched file using resolve
@@ -28,11 +28,16 @@ module.exports = function(base, files, config) {
 
 
   // return object-mapped string
-  return "{" + files.reduce(
+  return "[" + files.reduce(
     function(acc, file, idx, arr) {
-      return (acc ? acc + "," : "") +
-        "'" + hash[file].replace(/\\/g, '/') + "': " +
-        "require('" + file + "')";
-    }, false) + "}";
+      return [
+        (acc ? acc + "," : ""),
+        "{",
+        "name:'" + hash[file].replace(/\\/g, '/') + "'",
+        ",",
+        "module:require('" + file + "')",
+        "}"
+      ].join('');
+    }, false) + "]";
 
 };

@@ -1,7 +1,33 @@
+var REGEX_FULL = /var deps = { *((?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")) *: *require\((?:(?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\)(?: *, *(?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")) *: *require\((?:(?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\))*)? *};/;
+var REGEX_DEPS = /((?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")) *: *require\(((?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\)(?: *, *((?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")) *: *require\(((?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\))*/;
+
 var util = require('./util');
 var test = util.test;
 var compare = util.compare;
 var expect = util.expect;
+
+var matches = function(data) {
+  var content = data.match(REGEX_FULL)[1];
+  if (typeof content === 'undefined') {
+    return [];
+  } else {
+    var acc = [];
+    acc.names = [];
+    acc.paths = [];
+    return content.match(REGEX_DEPS).slice(1).reduce(function(acc, cur, idx, lst) {
+      var name = cur.substr(1, cur.length-2);
+      if (acc.length === 0 || typeof acc[acc.length-1].path === 'string') {
+        acc.push({name: name});
+        acc.names.push(name);
+      } else {
+        acc[acc.length-1].path = name;
+        acc.paths.push(name);
+      }
+      return acc;
+    }, acc);
+  }
+};
+
 
 describe('mode:"hash"', function() {
 
@@ -14,8 +40,13 @@ describe('mode:"hash"', function() {
           './dummies/module.js',
           'var deps = require("./include/*", {mode: "hash"});',
           function(data) {
-            expect(data).to.contain('./include/INCLUDED.js');
-            expect(data).to.not.contain('./include/nesting/NESTED_INCLUDE.js');
+            expect(data).to.match(REGEX_FULL);
+            var includes = matches(data);
+            expect(includes).to.have.length(2);
+            expect(includes[0].name).to.equal('INCLUDED');
+            expect(includes[0].path).to.equal('./include/INCLUDED.js');
+            expect(includes[1].name).to.equal('INCLUDED2');
+            expect(includes[1].path).to.equal('./include/INCLUDED2.js');
           }, done);
       });
 
@@ -24,7 +55,10 @@ describe('mode:"hash"', function() {
           './dummies/module.js',
           'var deps = require("./*", {mode: "hash"});',
           function(data) {
-            expect(data).to.not.contain('./module.js');
+            expect(data).to.match(REGEX_FULL);
+            var includes = matches(data);
+            expect(includes).to.have.length(0);
+            expect(data).to.contain('{}');
             expect(data).to.not.match(/require\(\s?("")|('')\)/);
           }, done);
       });
@@ -34,8 +68,10 @@ describe('mode:"hash"', function() {
           './dummies/include/module.js',
           'var deps = require("./*", {mode: "hash"});',
           function(data) {
-            expect(data).to.not.contain('./module.js');
-            expect(data).to.contain('./INCLUDED.js');
+            expect(data).to.match(REGEX_FULL);
+            var includes = matches(data);
+            expect(includes.paths).to.not.contain('./module.js');
+            expect(includes.paths).to.contain('./INCLUDED.js');
           }, done);
       });
 
@@ -44,6 +80,7 @@ describe('mode:"hash"', function() {
           './dummies/module.js',
           'var deps = require("./template/*", {mode: "hash"});',
           function(data) {
+            expect(data).to.match(REGEX_FULL);
             expect(data).to.not.contain('./module.js');
             expect(data).to.contain('./template/TEMPLATED.hbs');
           }, done);
@@ -60,6 +97,7 @@ describe('mode:"hash"', function() {
             './dummies/module.js',
             'var deps = require("./**/*.js", {mode: "hash"});',
             function(data) {
+              expect(data).to.match(REGEX_FULL);
               expect(data).to.contain('./include/INCLUDED.js');
               expect(data).to.contain('./include/nesting/NESTED_INCLUDE.js');
               expect(data).to.contain('./ignore/IGNORED.js');
@@ -71,6 +109,7 @@ describe('mode:"hash"', function() {
             './dummies/module.js',
             'var deps = require("./**/*.js", {mode: "hash", options: {ignore: \'./ignore/**/*\'}});',
             function(data) {
+              expect(data).to.match(REGEX_FULL);
               expect(data).to.contain('./include/INCLUDED.js');
               expect(data).to.contain('./include/nesting/NESTED_INCLUDE.js');
               expect(data).to.not.contain('./ignore/IGNORED.js');
@@ -82,6 +121,7 @@ describe('mode:"hash"', function() {
             './dummies/module.js',
             'var deps = require("./**/*.bogus", {mode: "hash"});',
             function(data) {
+              expect(data).to.contain('{}');
               expect(data).to.not.match(/require\(\s?("")|('')\)/);
             }, done);
         });
@@ -91,6 +131,7 @@ describe('mode:"hash"', function() {
             './dummies/include/module.js',
             'var deps = require("./*", {mode: "hash"});',
             function(data) {
+              expect(data).to.match(REGEX_FULL);
               expect(data).to.not.contain('./module.js');
               expect(data).to.contain('./INCLUDED.js');
             }, done);
@@ -101,6 +142,7 @@ describe('mode:"hash"', function() {
             './dummies/module.js',
             'var deps = require("./template/*", {mode: "hash"});',
             function(data) {
+              expect(data).to.match(REGEX_FULL);
               expect(data).to.not.contain('./module.js');
               expect(data).to.contain('./template/TEMPLATED.hbs');
             }, done);
@@ -115,6 +157,7 @@ describe('mode:"hash"', function() {
             './dummies/include/module.js',
             'var deps = require("../**/*.js", {mode: "hash"});',
             function(data) {
+              expect(data).to.match(REGEX_FULL);
               expect(data).to.contain('../include/INCLUDED.js');
               expect(data).to.contain('../include/nesting/NESTED_INCLUDE.js');
               expect(data).to.contain('../ignore/IGNORED.js');
@@ -127,6 +170,7 @@ describe('mode:"hash"', function() {
             './dummies/include/module.js',
             'var deps = require("../**/*.js", {mode: "hash", options: {ignore: \'../ignore/**/*\'}});',
             function(data) {
+              expect(data).to.match(REGEX_FULL);
               expect(data).to.contain('../include/INCLUDED.js');
               expect(data).to.contain('../include/nesting/NESTED_INCLUDE.js');
               expect(data).to.not.contain('../ignore/IGNORED.js');
@@ -139,6 +183,7 @@ describe('mode:"hash"', function() {
             './dummies/include/module.js',
             'var deps = require("../**/*.bogus", {mode: "hash"});',
             function(data) {
+              expect(data).to.match(REGEX_FULL);
               expect(data).to.not.match(/require\(\s?("")|('')\)/);
               expect(data).to.equal('var deps = {};');
             }, done);
@@ -149,6 +194,7 @@ describe('mode:"hash"', function() {
             './dummies/include/nesting/module.js',
             'var deps = require("../*", {mode: "hash"});',
             function(data) {
+              expect(data).to.match(REGEX_FULL);
               expect(data).to.not.contain('./module.js');
               expect(data).to.contain('../INCLUDED.js');
             }, done);
@@ -159,6 +205,7 @@ describe('mode:"hash"', function() {
             './dummies/include/module.js',
             'var deps = require("../template/*", {mode: "hash"});',
             function(data) {
+              expect(data).to.match(REGEX_FULL);
               expect(data).to.not.contain('./module.js');
               expect(data).to.contain('../template/TEMPLATED.hbs');
             }, done);
@@ -197,6 +244,7 @@ describe('mode:"hash"', function() {
           './dummies/module.js',
           'var deps = require("./include/**/*", {mode: "hash", resolve: "path-reduce"});',
           function(data) {
+            expect(data).to.match(REGEX_FULL);
             expect(data).to.contain("'INCLUDED.js': require(");
             expect(data).to.contain("'INCLUDED2.js': require(");
             expect(data).to.contain("'nesting/NESTED_INCLUDE.js': require(");
@@ -212,9 +260,10 @@ describe('mode:"hash"', function() {
           './dummies/module.js',
           'var deps = require("./include/**/*", {mode: "hash", resolve: "path", ext:true});',
           function(data) {
-            expect(data).to.contain("'include/INCLUDED.js': require(");
-            expect(data).to.contain("'include/INCLUDED2.js': require(");
-            expect(data).to.contain("'include/nesting/NESTED_INCLUDE.js': require(");
+            expect(data).to.match(REGEX_FULL);
+            expect(data).to.contain("'./include/INCLUDED.js': require(");
+            expect(data).to.contain("'./include/INCLUDED2.js': require(");
+            expect(data).to.contain("'./include/nesting/NESTED_INCLUDE.js': require(");
           }, done);
       });
 
@@ -223,6 +272,7 @@ describe('mode:"hash"', function() {
           './dummies/ignore/module.js',
           'var deps = require("../**/*", {mode: "hash", resolve: "path", ext:true});',
           function(data) {
+            expect(data).to.match(REGEX_FULL);
             expect(data).to.contain("'../include/INCLUDED.js': require(");
             expect(data).to.contain("'../include/INCLUDED2.js': require(");
             expect(data).to.contain("'../include/nesting/NESTED_INCLUDE.js': require(");
@@ -238,6 +288,7 @@ describe('mode:"hash"', function() {
           './dummies/module.js',
           'var deps = require("./include/**/*", {mode: "hash", resolve: "reduce-postfix", ext:true});',
           function(data) {
+            expect(data).to.match(REGEX_FULL);
             expect(data).to.contain("'./include/INCLUDED': require(");
             expect(data).to.contain("'./include/INCLUDED2': require(");
             expect(data).to.contain("'./include/nesting/NESTED_INCLUDE': require(");
@@ -253,6 +304,7 @@ describe('mode:"hash"', function() {
           './dummies/module.js',
           'var deps = require("./include/*", {mode: "hash", resolve: "reduce-prefix", ext:true});',
           function(data) {
+            expect(data).to.match(REGEX_FULL);
             expect(data).to.contain("'.js': require(");
             expect(data).to.contain("'2.js': require(");
           }, done);
@@ -267,6 +319,7 @@ describe('mode:"hash"', function() {
           './dummies/module.js',
           'var deps = require("./include/*", {mode: "hash", resolve: "reduce", ext:true});',
           function(data) {
+            expect(data).to.match(REGEX_FULL);
             expect(data).to.contain("'': require(");
             expect(data).to.contain("'2': require(");
           }, done);
@@ -281,6 +334,7 @@ describe('mode:"hash"', function() {
           './dummies/module.js',
           'var deps = require("./include/*", {mode: "hash", resolve: "strip-ext"});',
           function(data) {
+            expect(data).to.match(REGEX_FULL);
             expect(data).to.contain("'./include/INCLUDED': require(");
             expect(data).to.contain("'./include/INCLUDED2': require(");
           }, done);
@@ -291,6 +345,7 @@ describe('mode:"hash"', function() {
           './dummies/template/module.js',
           'var deps = require("./*", {mode: "hash", resolve: "strip-ext"});',
           function(data) {
+            expect(data).to.match(REGEX_FULL);
             expect(data).to.contain("'./TEMPLATED.hbs': require(");
             expect(data).to.contain("'./TEMPLATED.js': require(");
           }, done);
