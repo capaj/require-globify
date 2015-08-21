@@ -1,5 +1,7 @@
 var REGEX_FULL = /var deps = \[ *({ *name: *(?:(?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)"))) *, *module: *require\((?:(?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\) *}(?: *, *{name: *(?:(?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)"))) *, *module: *require\((?:(?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\) *})*)? *];/;
-var REGEX_DEPS = /{ *name: *((?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")) *, *module: *require\(((?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\) *}(?: *, *{ *name: *((?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")) *, *module: *require\(((?:(?:'(?:(?:(?:\\(?=')')|[^'])*)')|(?:"(?:(?:(?:\\(?=")")|[^"])*)")))\) *})*/;
+var REGEX_DEPS = /{ *name: *((?:'(?:(?:(?:\\(?=')')|[^'])*?)')|(?:"(?:(?:(?:\\(?=")")|[^"])*?)")) *, *module: *require\(((?:(?:'(?:(?:(?:\\(?=')')|[^'])*?)')|(?:"(?:(?:(?:\\(?=")")|[^"])*?)")))\) *} *,? */g;
+//" atom's syntax highlighter has issues with quotation in the above regex
+var REGEX_DEP_ONE = /{ *name: *((?:'(?:(?:(?:\\(?=')')|[^'])*?)')|(?:"(?:(?:(?:\\(?=")")|[^"])*?)")) *, *module: *require\(((?:(?:'(?:(?:(?:\\(?=')')|[^'])*?)')|(?:"(?:(?:(?:\\(?=")")|[^"])*?)")))\) *}/;
 
 var util = require('./util');
 var test = util.test;
@@ -14,17 +16,16 @@ var matches = function(data) {
     var acc = [];
     acc.names = [];
     acc.paths = [];
-    return content.match(REGEX_DEPS).slice(1).reduce(function(acc, cur, idx, lst) {
-      var name = cur.substr(1, cur.length-2);
-      if (acc.length === 0 || typeof acc[acc.length-1].path === 'string') {
-        acc.push({name: name});
-        acc.names.push(name);
-      } else {
-        acc[acc.length-1].path = name;
-        acc.paths.push(name);
-      }
-      return acc;
-    }, acc);
+    content.replace(REGEX_DEPS, function(match) {
+      var mapping = match.match(REGEX_DEP_ONE).slice(1).map(function(str) {
+        return str.substr(1, str.length-2);
+      });
+      acc.push({name: mapping[0], path: mapping[1]});
+      acc.names.push(mapping[0]);
+      acc.paths.push(mapping[1]);
+      return '';
+    });
+    return acc;
   }
 };
 
@@ -222,6 +223,186 @@ describe('mode:"list"', function() {
             }, done);
         });
 
+      });
+
+    });
+
+  });
+
+  describe('with resolver option', function() {
+
+    // - path
+    // - strip-ext
+    // - path-reduce
+    // - reduce-prefix
+    // - reduce-postfix
+    // - reduce
+
+    describe('default', function() {
+
+      it('should use ["path-reduce", "strip-ext"] as default', function(done) {
+        compare('./dummies/module.js',
+          'require("./include/**", {mode: "list"});',
+          'require("./include/**", {mode: "list", resolve:["path-reduce", "strip-ext"]});',
+          done);
+      });
+
+    });
+
+    describe('resolve:"path-reduce"', function() {
+
+      it('should remove common path', function(done) {
+        test(
+          './dummies/module.js',
+          'var deps = require("./include/**/*", {mode: "list", resolve: "path-reduce"});',
+          function(data) {
+            expect(data).to.match(REGEX_FULL);
+            var includes = matches(data);
+            expect(includes).to.have.length(3);
+            expect(includes[0].name).to.equal('INCLUDED.js');
+            expect(includes[0].path).to.equal('./include/INCLUDED.js');
+            expect(includes[1].name).to.equal('INCLUDED2.js');
+            expect(includes[1].path).to.equal('./include/INCLUDED2.js');
+            expect(includes[2].name).to.equal('nesting/NESTED_INCLUDE.js');
+            expect(includes[2].path).to.equal('./include/nesting/NESTED_INCLUDE.js');
+          }, done);
+      });
+
+    });
+
+    describe('resolve:"path"', function() {
+
+      it('should use relative path as key', function(done) {
+        test(
+          './dummies/module.js',
+          'var deps = require("./include/**/*", {mode: "list", resolve: "path", ext:true});',
+          function(data) {
+            expect(data).to.match(REGEX_FULL);
+            var includes = matches(data);
+            expect(includes).to.have.length(3);
+            expect(includes[0].name).to.equal('./include/INCLUDED.js');
+            expect(includes[0].path).to.equal('./include/INCLUDED.js');
+            expect(includes[1].name).to.equal('./include/INCLUDED2.js');
+            expect(includes[1].path).to.equal('./include/INCLUDED2.js');
+            expect(includes[2].name).to.equal('./include/nesting/NESTED_INCLUDE.js');
+            expect(includes[2].path).to.equal('./include/nesting/NESTED_INCLUDE.js');
+          }, done);
+      });
+
+      it('should use relative path as key, even when referring to a sibling', function(done) {
+        test(
+          './dummies/ignore/module.js',
+          'var deps = require("../**/*", {mode: "list", resolve: "path", ext:true});',
+          function(data) {
+            expect(data).to.match(REGEX_FULL);
+            var includes = matches(data);
+            expect(includes).to.have.length(6);
+            expect(includes[0].name).to.equal('./IGNORED.js');
+            expect(includes[0].path).to.equal('../ignore/IGNORED.js');
+            expect(includes[1].name).to.equal('../include/INCLUDED.js');
+            expect(includes[1].path).to.equal('../include/INCLUDED.js');
+            expect(includes[2].name).to.equal('../include/INCLUDED2.js');
+            expect(includes[2].path).to.equal('../include/INCLUDED2.js');
+            expect(includes[3].name).to.equal('../include/nesting/NESTED_INCLUDE.js');
+            expect(includes[3].path).to.equal('../include/nesting/NESTED_INCLUDE.js');
+            expect(includes[4].name).to.equal('../template/TEMPLATED.hbs');
+            expect(includes[4].path).to.equal('../template/TEMPLATED.hbs');
+            expect(includes[5].name).to.equal('../template/TEMPLATED.js');
+            expect(includes[5].path).to.equal('../template/TEMPLATED.js');
+          }, done);
+      });
+
+    });
+
+    describe('resolve:"reduce-postfix"', function() {
+
+      it('should remove common postfix', function(done) {
+        test(
+          './dummies/module.js',
+          'var deps = require("./include/**/*", {mode: "list", resolve: "reduce-postfix", ext:true});',
+          function(data) {
+            expect(data).to.match(REGEX_FULL);
+            var includes = matches(data);
+            expect(includes).to.have.length(3);
+            expect(includes[0].name).to.equal('./include/INCLUDED');
+            expect(includes[0].path).to.equal('./include/INCLUDED.js');
+            expect(includes[1].name).to.equal('./include/INCLUDED2');
+            expect(includes[1].path).to.equal('./include/INCLUDED2.js');
+            expect(includes[2].name).to.equal('./include/nesting/NESTED_INCLUDE');
+            expect(includes[2].path).to.equal('./include/nesting/NESTED_INCLUDE.js');
+          }, done);
+      });
+
+    });
+
+    describe('resolve:"reduce-prefix"', function() {
+
+      it('should remove common prefix', function(done) {
+        test(
+          './dummies/module.js',
+          'var deps = require("./include/*", {mode: "list", resolve: "reduce-prefix", ext:true});',
+          function(data) {
+            expect(data).to.match(REGEX_FULL);
+            var includes = matches(data);
+            expect(includes).to.have.length(2);
+            expect(includes[0].name).to.equal('.js');
+            expect(includes[0].path).to.equal('./include/INCLUDED.js');
+            expect(includes[1].name).to.equal('2.js');
+            expect(includes[1].path).to.equal('./include/INCLUDED2.js');
+          }, done);
+      });
+
+    });
+
+    describe('resolve:"reduce"', function() {
+
+      it('should remove common pre- and postfix', function(done) {
+        test(
+          './dummies/module.js',
+          'var deps = require("./include/*", {mode: "list", resolve: "reduce", ext:true});',
+          function(data) {
+            expect(data).to.match(REGEX_FULL);
+            var includes = matches(data);
+            expect(includes).to.have.length(2);
+            expect(includes[0].name).to.equal('');
+            expect(includes[0].path).to.equal('./include/INCLUDED.js');
+            expect(includes[1].name).to.equal('2');
+            expect(includes[1].path).to.equal('./include/INCLUDED2.js');
+          }, done);
+      });
+
+    });
+
+    describe('resolve:"strip-ext"', function() {
+
+      it('should remove extension', function(done) {
+        test(
+          './dummies/module.js',
+          'var deps = require("./include/*", {mode: "list", resolve: "strip-ext"});',
+          function(data) {
+            expect(data).to.match(REGEX_FULL);
+            var includes = matches(data);
+            expect(includes).to.have.length(2);
+            expect(includes[0].name).to.equal('./include/INCLUDED');
+            expect(includes[0].path).to.equal('./include/INCLUDED.js');
+            expect(includes[1].name).to.equal('./include/INCLUDED2');
+            expect(includes[1].path).to.equal('./include/INCLUDED2.js');
+          }, done);
+      });
+
+      it('should not remove extension if it causes naming collisions', function(done) {
+        test(
+          './dummies/template/module.js',
+          'var deps = require("./*", {mode: "list", resolve: "strip-ext"});',
+          function(data) {
+            expect(data).to.match(REGEX_FULL);
+            var includes = matches(data);
+            expect(includes).to.have.length(2);
+            expect(includes[0].name).to.equal('./TEMPLATED.hbs');
+            expect(includes[0].path).to.equal('./TEMPLATED.hbs');
+            expect(includes[1].name).to.equal('./TEMPLATED.js');
+            expect(includes[1].path).to.equal('./TEMPLATED.js');
+          }, done);
       });
 
     });

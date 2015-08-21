@@ -261,9 +261,9 @@ describe('mode:"hash"', function() {
           'var deps = require("./include/**/*", {mode: "hash", resolve: "path", ext:true});',
           function(data) {
             expect(data).to.match(REGEX_FULL);
-            expect(data).to.contain("'include/INCLUDED.js': require(");
-            expect(data).to.contain("'include/INCLUDED2.js': require(");
-            expect(data).to.contain("'include/nesting/NESTED_INCLUDE.js': require(");
+            expect(data).to.contain("'./include/INCLUDED.js': require(");
+            expect(data).to.contain("'./include/INCLUDED2.js': require(");
+            expect(data).to.contain("'./include/nesting/NESTED_INCLUDE.js': require(");
           }, done);
       });
 
