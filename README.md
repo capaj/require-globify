@@ -67,7 +67,7 @@ The second parameter to require must be an object and supports the following key
   Possible values are
   - `'path'`
 
-  Every file uses it's relative path (as returned by node-glob) as its key.
+  Every file uses it's relative path as its key. The relative path will always begin with either `../` or `./`. On Windows, paths will be written unix-style (so `\` will be replaced by `/`).
   This replaces the options `hash: "path", ext: true` in *<1.2.0*.
 
   - `'strip-ext'`
