@@ -135,7 +135,7 @@ Hashing with paths implemented by Pat Collins([@patcoll](https://github.com/patc
 
 [npm]:                     https://www.npmjs.com/package/require-globify
 [travis]:                  https://travis-ci.org/capaj/require-globify
-[travis-shield]:           https://img.shields.io/travis/capaj/require-globify.svg
+[travis-shield]:           https://img.shields.io/travis/capaj/require-globify/master.svg
 [travis-shield-develop]:   https://img.shields.io/travis/capaj/require-globify/develop.svg?label=develop%20build
 [dependencies]:            https://david-dm.org/capaj/require-globify
 [dependencies-dev]:        https://david-dm.org/capaj/require-globify#info=devDependencies
