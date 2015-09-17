@@ -98,7 +98,9 @@ module.exports = require('browserify-transform-tools').makeRequireTransform(
 
       try {
         // sort files to ensure consistent order upon multiple runs
-        files.sort();
+        files.sort(config.sort); //allow custom sorting
+	if (config.skip) files.splice(0, config.skip); //skip files at front
+	if (config.limit) files.splice(config.limit, files.length); //truncate list
 
         result = mode(opts.file, files, config);
 
