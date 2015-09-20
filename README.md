@@ -123,6 +123,13 @@ Hashing with paths implemented by Pat Collins([@patcoll](https://github.com/patc
 [MIT](http://github.com/capaj/require-globify/blob/master/LICENSE)
 
 
+## Contributing
+When you want to contribute to require-globify, please be aware of the following things.
+- We use [git-flow](http://nvie.com/posts/a-successful-git-branching-model/) during development, so we only accept pull requests on the `develop` branch.
+- We use [SemVer](http://semver.org/) for determining version numbers. The project maintainers responsible for releasing new versions will alter the version number upon release, so it is unnecessary to edit this when you submit a bugfix/new feature/other PR.
+- We try to keep require-globify fully tested. Provide any new functionality with it's own unit tests, as well as provide a test for specific bugs you might fix to ensure no regressions occur later on.
+
+
 ## Changelog
  - 1.2.1:
    - Fixed bugs [#12](https://github.com/capaj/require-globify/issues/12), [#13](https://github.com/capaj/require-globify/issues/13) and [#14](https://github.com/capaj/require-globify/issues/14)
