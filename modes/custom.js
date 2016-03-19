@@ -4,7 +4,7 @@ module.exports = function(base, files, config) {
   }
   return files.reduce(
     function(acc, file, idx, arr) {
-      config.template = config.template.replace(new RegExp('{file}', 'g'), file);
-      return (acc ? acc + ";" : "") + config.template;
+      var template = config.template.replace(new RegExp('{file}', 'g'), file);
+      return (acc ? acc + ";" : "") + template;
     }, false);
 };
