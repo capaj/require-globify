@@ -11,7 +11,8 @@ var modes = {
 module.exports = require('browserify-transform-tools').makeRequireTransform(
   'require-globify', {
     jsFilesOnly: true,
-    evaluateArguments: true
+    evaluateArguments: true,
+    falafelOptions: {ecmaVersion: 6}
   },
   function(args, opts, done) {
     // args: args passed to require()
