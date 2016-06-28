@@ -103,6 +103,15 @@ The second parameter to require must be an object and supports the following key
 ### options *[optional, default:{}]*
   This allows options to be provided to [node-glob](https://www.npmjs.com/package/glob), which is used internally to find matching files.
 
+### sort *[optional, default: alphanumeric]*
+  By default the list of files returned is sorted by name.  This option allows a custom sort function to be used.  The parameter is passed to sort(), so any of the sort variations supported by sort() can be used.
+
+### skip *[optional, default: 0]*
+  Allows entries at the beginning of the matching list of file names to be skipped.
+
+### limit *[optional, default: length of list]*
+  Allows the list of matching files to be truncated to the specified length.
+
 ### ext *[deprecated, optional, default:false]*
   This option is replaced by `resolve: 'strip-ext'`, but remains supported until version 2.0.0.
   **WARNING**: Backwards compatibility is not available in combination with the newer "resolve" option.
